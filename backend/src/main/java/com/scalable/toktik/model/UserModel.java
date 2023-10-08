@@ -24,16 +24,19 @@ public class UserModel extends AbstractModel {
     private String email;
     @Column(name = "password", nullable = false)
     private String password;
+    @Column(name = "is_staff")
+    private boolean is_staff;
     //Reverse relations
     @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE)
     private Set<VideoModel> videos;
     @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE)
     private Set<CommentModel> comments;
 
-    public UserModel(String username, String slug, String email, String password) {
+    public UserModel(String username, String slug, String email, String password, boolean is_staff) {
         this.username = username;
         this.slug = slug;
         this.email = email;
         this.password = password;
+        this.is_staff = is_staff;
     }
 }
