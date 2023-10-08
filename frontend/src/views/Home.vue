@@ -1,6 +1,8 @@
 <template>
-    <h1>hello</h1>
+  <Navbar />
+  <h3>This is home page</h3>
 </template>
 
-<script>
+<script setup>
+  import Navbar from '@/components/Navbar.vue'
 </script>
