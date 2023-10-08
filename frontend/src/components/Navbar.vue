@@ -6,18 +6,12 @@
           <v-col class="shrink">
             <v-img src="src/images/toktik_wide.png"  width="100"></v-img>
           </v-col>
-          <v-col></v-col>
-          <v-col>
-            <v-btn class="reg-btn">
-              My videos
-            </v-btn>
-          </v-col>
-          <v-col>
-            <span class="font-weight-light">Todo</span>
-            <span>nn</span>
+          <v-col align="end">
+            <v-btn class="reg-btn"> My videos </v-btn>
+            <v-btn class="reg-btn" @click="navigateToUploadPage"> Upload </v-btn>
+            <v-btn class="red-btn"> Log out</v-btn>
           </v-col>>
         </v-row>
-
       </v-toolbar-title>
     </v-toolbar>
   </nav>
@@ -25,7 +19,13 @@
 
 <script>
 export default {
-
+  data() {
+    return {
+    };
+  },
+  methods: {
+    navigateToUploadPage(){ this.$router.push('Upload'); }
+  }
 }
 </script>
 
@@ -36,8 +36,20 @@ export default {
 }
 .reg-btn{
   background-color: #ffffff;
-  border: 1.5px solid #cecece;
+  border: 1.5px solid #dcdcdc;
   font-size: 12px;
+  font-weight: 700;
   padding: 5px;
+  margin-left: 0.3pc;
+  margin-right: 0.3pc;
+}
+.red-btn{
+  background-color: #EE3457;
+  color: white;
+  padding: 10px;
+  font-size: 12px;
+  font-weight: 700;
+  margin-left: 0.3pc;
+  margin-right: 0.3pc;
 }
 </style>
