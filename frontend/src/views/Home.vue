@@ -6,3 +6,7 @@
 <script setup>
   import Navbar from '@/components/Navbar.vue'
 </script>
+
+<style scoped>
+@import '@/styles/btn-style.css';
+</style>
