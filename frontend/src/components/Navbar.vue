@@ -24,32 +24,16 @@ export default {
     };
   },
   methods: {
-    navigateToUploadPage(){ this.$router.push('Upload'); }
+    navigateToUploadPage(){ this.$router.push('upload'); }
   }
 }
 </script>
 
 <style scoped>
+@import '@/styles/btn-style.css';
+
 .Navbar{
   background-color: #ffffff;
   box-shadow: 0px 1px 3px rgba(0, 0, 0, 0.2);
-}
-.reg-btn{
-  background-color: #ffffff;
-  border: 1.5px solid #dcdcdc;
-  font-size: 12px;
-  font-weight: 700;
-  padding: 5px;
-  margin-left: 0.3pc;
-  margin-right: 0.3pc;
-}
-.red-btn{
-  background-color: #EE3457;
-  color: white;
-  padding: 10px;
-  font-size: 12px;
-  font-weight: 700;
-  margin-left: 0.3pc;
-  margin-right: 0.3pc;
 }
 </style>
