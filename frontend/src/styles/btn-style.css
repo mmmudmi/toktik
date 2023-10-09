@@ -1,0 +1,28 @@
+.reg-btn{
+    background-color: #ffffff;
+    border: 1.5px solid #dcdcdc;
+    font-size: 12px;
+    font-weight: 700;
+    padding: 5px;
+    margin-left: 0.3pc;
+    margin-right: 0.3pc;
+}
+.red-btn{
+    background-color: #EE3457;
+    color: white;
+    padding: 10px;
+    font-size: 12px;
+    font-weight: 700;
+    margin-left: 0.3pc;
+    margin-right: 0.3pc;
+}
+.blue-btn{
+    background-color: #6DCBD3;
+    color: white;
+    padding: 5px;
+    margin-left: 0.5pc;
+    margin-right: 0.5pc;
+    border-radius: 4px;
+    font-weight: 700;
+    font-size: 15px;
+}
