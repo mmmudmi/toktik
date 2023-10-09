@@ -15,13 +15,7 @@
         <v-btn @click="remove" id="remove" density="compact" icon="mdi-close" style="display: none;color: #fff; background-color: #EE3457"></v-btn>
         <video id="video-preview" controls style="display: none;"></video>
       </div>
-
-<!--      <div id="thumbnail-container">-->
-<!--        <p>Thumbnail:</p>-->
-<!--        <img id="thumbnail" src="" alt="Thumbnail">-->
-<!--      </div>-->
     </v-col>
-
     <v-col>
       <div class="fill-in-container">
         <v-form>
@@ -44,6 +38,12 @@
             single-line
           ></v-textarea>
           <br />
+<!--          <v-row v-if="this.video">-->
+<!--            <p style="font-size: 14px;margin-left:8px">Thumbnail</p>-->
+<!--            <div class="thumbnail">-->
+<!--              <canvas id="output"></canvas>-->
+<!--            </div>-->
+<!--          </v-row>-->
           <v-row>
             <v-col align="end">
               <v-btn class="reg-btn" @click="navigateToHomePage">
@@ -85,6 +85,18 @@ export default {
     },
   },
   methods: {
+    capture(){
+      var video = document.getElementById('video-preview');
+      var canvas = document.getElementById('output');
+      var context = canvas.getContext('2d');
+      canvas.width = video.videoWidth/2;
+      canvas.height = video.videoHeight/2;
+      context.drawImage(video, 0, 0, canvas.width, canvas.height);
+      var img = new Image();
+      img.src = canvas.toDataURL();
+      this.thumbnail = img;
+    },
+
     remove(){
       const videoElement = document.getElementById('video-preview');
       videoElement.pause();
@@ -94,6 +106,7 @@ export default {
       document.getElementById('drop-area').style.display='block';
       document.getElementById('video-preview').style.display = 'block';
       document.getElementById('input-file').value = '';
+      this.thumbnail = null;
       this.video = null;
     },
     selectFile(){
@@ -234,6 +247,10 @@ export default {
   padding: 0;
   z-index: 1;
 }
-
+.select-thumbnail {
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+}
 </style>
 

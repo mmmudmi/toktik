@@ -26,3 +26,13 @@
     font-weight: 700;
     font-size: 15px;
 }
+.red-border-btn{
+    background-color: #ffffff;
+    color: #EE3457;
+    padding: 10px;
+    font-size: 12px;
+    font-weight: 700;
+    margin-left: 0.3pc;
+    margin-right: 0.3pc;
+    border: 1.5px solid #EE3457 ;
+}
