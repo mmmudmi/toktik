@@ -11,7 +11,7 @@ import javax.persistence.*;
 @Getter
 @Setter
 @Entity
-@Table(name = "reviews")
+@Table(name = "comments")
 @NoArgsConstructor
 public class CommentModel extends AbstractModel {
 

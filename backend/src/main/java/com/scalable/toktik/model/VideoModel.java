@@ -11,7 +11,7 @@ import java.util.Set;
 @Getter
 @Setter
 @Entity
-@Table(name = "movies")
+@Table(name = "video")
 @NoArgsConstructor
 public class VideoModel extends AbstractModel {
     @Column(name = "title")
