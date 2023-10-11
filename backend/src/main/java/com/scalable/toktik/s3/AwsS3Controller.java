@@ -3,6 +3,7 @@ package com.scalable.toktik.s3;
 import com.amazonaws.HttpMethod;
 import com.scalable.toktik.record.response.BoolResponse;
 import com.scalable.toktik.record.s3.S3CompleteForm;
+import com.scalable.toktik.record.s3.S3RequestForm;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
@@ -27,13 +28,24 @@ public class AwsS3Controller {
         if (extension.isBlank()) {
             return new BoolResponse(false, "Extension variable is require");
         }
-        String signURL = awsS3Service.generatePreSignedUrl(HttpMethod.POST, UUID.randomUUID() + "." + extension.strip().toLowerCase(), bucketName, 30);
+        String signURL = awsS3Service.generatePreSignedUrl(HttpMethod.PUT, UUID.randomUUID() + "." + extension.strip().toLowerCase(), bucketName, 30);
         return new BoolResponse(true, signURL);
     }
+
+    @GetMapping("/count")
+    public BoolResponse count() {
+        return new BoolResponse(true, awsS3Service.getObjectList(bucketName).toString());
+    }
+
 
     @PostMapping("/upload-complete")
     public BoolResponse uploadComplete(S3CompleteForm s3CompleteForm) {
         return new BoolResponse(true, "Successfully recorded");
+    }
+
+    @PostMapping("/access-request")
+    public BoolResponse accessRequest(S3RequestForm s3RequestForm) {
+        return new BoolResponse(true, awsS3Service.generatePreSignedUrl(HttpMethod.GET, s3RequestForm.filename(), bucketName, 30));
     }
 }
 
