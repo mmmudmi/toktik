@@ -55,7 +55,7 @@
 <script>
 import axios from 'axios'
 import Navbar from '@/components/Navbar.vue'
-import {th} from "vuetify/locale";
+import { isJwtExpired } from 'jwt-check-expiration';
 export default {
   components: {Navbar},
   data(){
@@ -73,7 +73,7 @@ export default {
     },
   },
   methods: {
-    getExt() {
+    uploadVideoToS3() {
       const filename = this.video.name;
       const fileExtension = filename.slice(((filename.lastIndexOf(".") - 1) >>> 0) + 2);
       axios.get('http://localhost:8080/api/s3/generate-upload-url/' + fileExtension)
@@ -108,33 +108,6 @@ export default {
         });
       this.navigateToMyVideos();
     },
-
-
-    // putVideo(){
-    //   const axios = require('axios');
-    //
-    //
-    //   this.getExt();
-    //   axios.put(this.extURL,this.video.name,{
-    //     headers: {
-    //       'Content-Type': 'multipart/form-data'
-    //     }
-    //   })
-    // },
-    capture(){
-      var video = document.getElementById('video-preview');
-      var canvas = document.getElementById('output');
-      var context = canvas.getContext('2d');
-      canvas.width = video.videoWidth/2;
-      canvas.height = video.videoHeight/2;
-      context.drawImage(video, 0, 0, canvas.width, canvas.height);
-      var img = new Image();
-      img.src = canvas.toDataURL();
-      this.thumbnail = img;
-      const thumbnailImage = document.getElementById("thumbnail");
-      thumbnailImage.src = canvas.toDataURL();
-    },
-
     remove(){
       const videoElement = document.getElementById('video-preview');
       videoElement.pause();
@@ -181,22 +154,28 @@ export default {
         return;
       }
       try {
-        this.getExt();
+        this.uploadVideoToS3();
         const formData = new FormData();
         formData.append('video', this.video)
         formData.append('title', this.title)
-        // const response = await axios.post('/api/upload-video', formData, {
-        //   headers: {
-        //     'Content-Type': 'multipart/form-data'
-        //   }
-        // });
 
       } catch (error) {
         console.error('Error uploading video:', error);
       }
+    },
+  },
+  beforeMount() {
+    let jwtToken = localStorage.getItem('token')
+    if (jwtToken && !isJwtExpired(jwtToken)) {
+      axios.defaults.headers.common['Authorization'] = `Bearer ${localStorage.getItem('token')}`;
+      const form = new FormData;
+      form.append("username", localStorage.getItem("username"))
+    } else {
+      localStorage.removeItem('token')
+      axios.defaults.headers.common['Authorization'] = null;
+      this.$router.push({ name: 'welcome'})
     }
-
-  }
+  },
 }
 </script>
 

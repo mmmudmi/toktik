@@ -9,7 +9,7 @@
           <v-col align="end">
             <v-btn class="reg-btn" @click="navigateToMyVideosPage"> My videos </v-btn>
             <v-btn class="reg-btn" @click="navigateToUploadPage"> Upload </v-btn>
-            <v-btn class="red-btn"> Log out</v-btn>
+            <v-btn class="red-btn" @click="logout"> Log out</v-btn>
           </v-col>>
         </v-row>
       </v-toolbar-title>
@@ -18,6 +18,7 @@
 </template>
 
 <script>
+import axios from 'axios';
 export default {
   data() {
     return {
@@ -27,6 +28,22 @@ export default {
     navigateToUploadPage(){ this.$router.push('upload'); },
     navigateToHomePage(){ this.$router.push('home'); },
     navigateToMyVideosPage(){ this.$router.push('myVideos'); },
+    logout(){
+      console.log('exit')
+      axios.get("http://localhost:8080/api/auth/logout")
+        .then((res) => {
+          let data = res.data
+          if (data.success) {
+            this.$router.push({ name: 'welcome' })
+            alert(data.message)
+          } else {
+            alert(data.message)
+          }
+        }).catch(
+        err => {
+          console.log(err)
+        })
+    },
   }
 }
 </script>

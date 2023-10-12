@@ -17,7 +17,7 @@
           required
           variant="outlined"
           v-model="email"
-          type="text"
+          type="email"
           label="email"
           single-line
           :rules="[formRequired]"
@@ -126,6 +126,7 @@ export default {
   beforeMount() {
     localStorage.removeItem('token')
     localStorage.removeItem('username')
+    axios.get("http://localhost:8080/api/auth/logout")
     axios.defaults.headers.common['Authorization'] = null;
   },
 };

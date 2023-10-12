@@ -7,8 +7,13 @@ const routes = [
     component: () => import('@/layouts/default/Default.vue'),
     children: [
       {
-        path: '',
-        alias: '/home',
+        path: '/welcome',
+        alias: '',
+        name: 'welcome',
+        component: () => import('@/views/Welcome.vue'),
+      },
+      {
+        path: '/home',
         name: 'home',
         component: () => import('@/views/Home.vue'),
       },
@@ -26,11 +31,6 @@ const routes = [
         path: '/myVideos',
         name: 'myVideos',
         component: () => import('@/views/MyVideos.vue'),
-      },
-      {
-        path: '/welcome',
-        name: 'welcome',
-        component: () => import('@/views/Welcome.vue'),
       },
       {
         path: '/login',

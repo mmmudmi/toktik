@@ -24,7 +24,7 @@
           :type="eye ? 'password' : 'text'"
         ></v-text-field>
         <div style="display: flex; justify-content: center; align-items: center;">
-          <v-btn class="black-btn" style="width: 7pc;margin: 0.5pc" >Log in</v-btn>
+          <v-btn class="black-btn" style="width: 7pc;margin: 0.5pc" @click="login">Log in</v-btn>
         </div>
         <div class="txt-below">
           <p style="font-size: 13px">Don't have an account?</p>
@@ -33,8 +33,17 @@
           margin-left: 0.2pc;
           color: #EE3457;
           cursor: pointer;"
-          @click="navigateToRegister"
+             @click="navigateToRegister"
           >Sign up</u>
+<!--          <p style="font-size: 13px">or</p>-->
+<!--          <u style="font-size: 13px;-->
+<!--          font-weight: bold;-->
+<!--          margin-left: 0.2pc;-->
+<!--          color: #EE3457;-->
+<!--          cursor: pointer;"-->
+<!--          @click="navigateToRegister"-->
+<!--          >forget password</u>-->
+
         </div>
       </v-form>
     </div>
@@ -44,6 +53,7 @@
 
 <script>
 import axios from 'axios';
+import { isJwtExpired } from 'jwt-check-expiration';
 
 export default {
   data() {
@@ -53,8 +63,6 @@ export default {
       eye: String,
       formRequired: value => !!value || 'Field is required',
     };
-  },
-  computed: {
   },
   methods: {
     navigateToRegister(){ this.$router.push('signUp'); },
@@ -66,13 +74,12 @@ export default {
         .then((res) => {
           let data = res.data
           if (data.success) {
-            // localStorage.setItem('token', data.message)
-            // localStorage.setItem('username', this.username)
-            // localStorage.setItem('code', null)      // set course coe to null
+            localStorage.setItem('token', data.message)
+            localStorage.setItem('username', this.username)
             this.$router.push({ name: 'home' })
           } else {
             alert(data.message)
-            window.location.reload()
+            // window.location.reload()
           }
         }).catch(
             err => {
@@ -82,7 +89,12 @@ export default {
     }
   },
   mounted() {},
-  beforeMount() {},
+  beforeMount() {
+    localStorage.removeItem('token')
+    localStorage.removeItem('username')
+    axios.get("http://localhost:8080/api/auth/logout")
+    axios.defaults.headers.common['Authorization'] = null;
+  }
 };
 </script>
 
