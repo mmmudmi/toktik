@@ -30,6 +30,15 @@ public class AuthController {
         this.JWTService = JWTService;
     }
 
+    @GetMapping("/test-user")
+    public BoolResponse createTestUser() {
+        if (userService.findByUsername("admin") != null) {
+            return new BoolResponse(false, "User 'admin' was used");
+        }
+        userService.createUser("admin", "admin@example.com", "admin");
+        return new BoolResponse(true, "Successfully create user: admin pass: admin");
+    }
+
     @PostMapping("/signup")
     public CodeResponse signup(SignupForm form) {
         String username = form.username().strip();

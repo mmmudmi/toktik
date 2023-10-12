@@ -14,30 +14,41 @@ import java.util.Set;
 @Table(name = "video")
 @NoArgsConstructor
 public class VideoModel extends AbstractModel {
-    @Column(name = "title")
-    private String title;
     @Column(name = "video", nullable = false) //url
     private String video;
     @Column(name = "preview", nullable = false) //url
     private String preview;
-    @Column(name = "description", columnDefinition = "mediumtext")
-    private String description;
+    @Column(name = "caption")
+    private String caption;
     @Column(name = "views")
     private Integer views = 0;
+    @Column(name = "likes")
+    private Integer likes = 0;
+    @Column(name = "parts")
+    private Integer parts = 0;
     @Column(name = "is_process")
-    private Boolean is_process;
+    private Boolean is_process = true;
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false, updatable = false)
     private UserModel user;
     @OneToMany(mappedBy = "comment", cascade = CascadeType.ALL)
     private Set<CommentModel> reviews;
 
-    public VideoModel(String title, String video, String preview, String description, Integer views, Boolean is_process, UserModel user) {
-        this.title = title;
+    public VideoModel(String video, String preview, String caption, Integer views, Integer likes, Integer parts, Boolean is_process, UserModel user) {
         this.video = video;
         this.preview = preview;
-        this.description = description;
+        this.caption = caption;
         this.views = views;
+        this.likes = likes;
+        this.parts = parts;
+        this.is_process = is_process;
+        this.user = user;
+    }
+
+    public VideoModel(String video, String caption, UserModel user) {
+        this.video = video;
+        this.preview = video;
+        this.caption = caption;
         this.user = user;
     }
 }

@@ -4,8 +4,13 @@ import com.amazonaws.HttpMethod;
 import com.scalable.toktik.record.response.BoolResponse;
 import com.scalable.toktik.record.s3.S3CompleteForm;
 import com.scalable.toktik.record.s3.S3RequestForm;
+import com.scalable.toktik.service.UserService;
+import com.scalable.toktik.service.VideoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
@@ -15,14 +20,19 @@ import java.util.UUID;
 public class AwsS3Controller {
 
     private final AwsS3Service awsS3Service;
+    private final VideoService videoService;
+    private final UserService userService;
     @Value("${aws.bucketName}")
     private String bucketName;
 
     @Autowired
-    public AwsS3Controller(AwsS3Service awsS3Service) {
+    public AwsS3Controller(AwsS3Service awsS3Service, VideoService videoService, UserService userService) {
         this.awsS3Service = awsS3Service;
+        this.videoService = videoService;
+        this.userService = userService;
     }
 
+    @PreAuthorize("isAuthenticated()")
     @GetMapping("/generate-upload-url/{extension}")
     public BoolResponse generateUploadUrl(@PathVariable String extension) {
         if (extension.isBlank()) {
@@ -32,15 +42,16 @@ public class AwsS3Controller {
         return new BoolResponse(true, signURL);
     }
 
+    @PreAuthorize("isAuthenticated()")
+    @PostMapping("/upload-complete")
+    public BoolResponse uploadComplete(S3CompleteForm s3CompleteForm, @AuthenticationPrincipal UserDetails userDetails) {
+        videoService.createVideo(s3CompleteForm.filename(), s3CompleteForm.caption(), userService.findByUsername(userDetails.getUsername()));
+        return new BoolResponse(true, "Successfully recorded");
+    }
+
     @GetMapping("/count")
     public BoolResponse count() {
         return new BoolResponse(true, awsS3Service.getObjectList(bucketName).toString());
-    }
-
-
-    @PostMapping("/upload-complete")
-    public BoolResponse uploadComplete(S3CompleteForm s3CompleteForm) {
-        return new BoolResponse(true, "Successfully recorded");
     }
 
     @PostMapping("/access-request")
