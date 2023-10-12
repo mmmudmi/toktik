@@ -3,18 +3,17 @@
   <div style="margin: 2pc;">
     <v-row>
       <v-col v-for="(card, id) in videos" :key="id" cols="12" sm="6" md="3">
-        <v-card class="vid-card" @click="redirect(id)">
-          <v-row>
-            <h3 class="txt-card">{{ card.title }}</h3>
-          </v-row>
-          <v-row class="card-bottom">
-            <v-col style="text-align: left">
-              <h5 class="txt-card">{{ card.user }}</h5>
-            </v-col>
-            <v-col style="text-align: right">
-              <h5 class="txt-card">{{ card.views }} views</h5>
-            </v-col>
-          </v-row>
+        <v-card class="card-container" @click="redirect(id)">
+          <div class="vid">
+            <v-row style="position: relative; left: 1.5pc; bottom: 1.5pc;z-index: 2;">
+              <i class="fa fa-play" style="color: white; margin-right: 10px;"></i>
+              <p class="txt-card" style="font-size: 15px;position: absolute;left: 18px;bottom: -3px">{{ card.views }} views</p>
+            </v-row>
+          </div>
+          <div class="description" style="z-index: 2;">
+            <div class="line">caption caption caption caption caption caption caption caption caption</div>
+            <div class="line">@{{ card.user }}</div>
+          </div>
         </v-card>
       </v-col>
     </v-row>
@@ -33,13 +32,13 @@
     components: {Navbar},
     data(){
       return{
-        videos: {"id1":{"title":"hello","views":2,"user":"mmmummmudmimmmudmimmmudmimmmudmidmi"},
-          "id2":{"title":"hi","views":10,"user":"mimi"},
-          "id3":{"title":"hohoho","views":8,"user":"may"},
-          "id4":{"title":"heyyy","views":2,"user":"mild"},
-          "id5":{"title":"good job","views":13,"user":"mmmudmi"},
-          "id6":{"title":"niceeeeee","views":23,"user":"mmmudmi"},
-          "id7":{"title":"su su","views":20,"user":"mimi"}
+        videos: {"id1":{"caption":"hello","views":2,"user":"mmmummmudmimmmudmimmmudmimmmudmidmi"},
+          "id2":{"caption":"hi","views":10,"user":"mimi"},
+          "id3":{"caption":"hohoho","views":8,"user":"may"},
+          "id4":{"caption":"heyyy","views":2,"user":"mild"},
+          "id5":{"caption":"good job","views":13,"user":"mmmudmi"},
+          "id6":{"caption":"niceeeeee","views":23,"user":"mmmudmi"},
+          "id7":{"caption":"su su","views":20,"user":"mimi"}
         },
       }
     },
@@ -53,15 +52,21 @@
 
 <style scoped>
 @import '@/styles/btn-style.css';
-.vid-card{
+
+.card-container{
   width: 100%;
-  height: 30pc;
-  padding: 1.5pc;
   overflow: hidden;
+}
+.vid{
+  padding-top: 100%;
+  background-color: #ffffff;
+}
+.description{
+  background-color: #ffffff;
+  padding: 1pc 1pc 0pc 1pc ;
 }
 .txt-card{
   color: white;
-  text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.4);
 }
 .card-bottom {
   position: absolute;
@@ -75,4 +80,29 @@
 .text-right {
   text-align: right;
 }
+.line {
+  color: black;
+  font-size: 14px;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: scroll;
+  direction: ltr;
+  line-height: 1;
+  pointer-events: auto;
+}
+.line::-webkit-scrollbar {
+  width: 0; /* Hide scrollbar in Webkit browsers */
+}
+.vid::before {
+  content: '';
+  position: absolute;
+  width: 100%;
+  height: 25%;
+  bottom: 4.75pc;
+  left: 0;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.12), rgba(0, 0, 0, 0)); /* Fade from black to transparent */
+  z-index: 1;
+  pointer-events: none;
+}
+
 </style>
