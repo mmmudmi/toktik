@@ -22,6 +22,26 @@ const routes = [
         name: 'play',
         component: () => import('@/views/Play.vue'),
       },
+      {
+        path: '/myVideos',
+        name: 'myVideos',
+        component: () => import('@/views/MyVideos.vue'),
+      },
+      {
+        path: '/welcome',
+        name: 'welcome',
+        component: () => import('@/views/Welcome.vue'),
+      },
+      {
+        path: '/login',
+        name: 'login',
+        component: () => import('@/views/Login.vue'),
+      },
+      {
+        path: '/signUp',
+        name: 'signUp',
+        component: () => import('@/views/SignUp.vue'),
+      },
     ],
   },
 ]

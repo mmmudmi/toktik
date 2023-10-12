@@ -9,7 +9,7 @@
       <v-row class="element-boxes">
         <v-col class="box">
           <div class="line">@username</div>
-          <div class="line">Title</div>
+<!--          <div class="line">Title</div>-->
           <div class="line">Description Description Description Description Description</div>
         </v-col>
         <!--        likes, comments, icons -->
@@ -100,6 +100,7 @@ export default {
   align-items: center;
   justify-content: center;
   height: 95vh;
+  //background-color: black;
 }
 .navigation-buttons{
   z-index: 1;

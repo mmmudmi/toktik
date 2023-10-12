@@ -36,3 +36,13 @@
     margin-right: 0.3pc;
     border: 1.5px solid #EE3457 ;
 }
+.black-btn{
+    background-color: #000000;
+    color: white;
+    padding: 5px;
+    margin-left: 0.5pc;
+    margin-right: 0.5pc;
+    border-radius: 4px;
+    font-weight: 700;
+    font-size: 15px;
+}

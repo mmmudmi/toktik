@@ -106,6 +106,7 @@ export default {
         .catch((error) => {
           console.log(error);
         });
+      this.navigateToMyVideos();
     },
 
 
@@ -173,27 +174,7 @@ export default {
       }
     },
     navigateToHomePage(){ this.$router.push('home'); },
-    checkVideo(file) {
-      const videoElement = document.createElement('video');
-      videoElement.src = URL.createObjectURL(file);
-
-      videoElement.onloadedmetadata = () => {
-        const durationInSeconds = videoElement.duration;
-
-        if (durationInSeconds > 1) {
-          // Set the video in the Vue data
-          this.video = URL.createObjectURL(file);
-
-          // Set the thumbnail in the Vue data
-          this.thumbnail = URL.createObjectURL(file);
-        } else {
-          alert("The selected video must be longer than 1 second.");
-        }
-
-        // Clean up
-        videoElement.remove();
-      };
-    },
+    navigateToMyVideos(){ this.$router.push('myVideos'); },
     async uploadVideo(){
       if (!this.video) {
         alert('Please select a video to upload.');

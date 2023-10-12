@@ -4,10 +4,10 @@
       <v-toolbar-title>
         <v-row align="start">
           <v-col class="shrink">
-            <v-img src="src/images/toktik_wide.png"  width="100"></v-img>
+            <v-img src="src/images/toktik_wide.png" style="cursor: pointer" width="100" @click="navigateToHomePage"></v-img>
           </v-col>
           <v-col align="end">
-            <v-btn class="reg-btn"> My videos </v-btn>
+            <v-btn class="reg-btn" @click="navigateToMyVideosPage"> My videos </v-btn>
             <v-btn class="reg-btn" @click="navigateToUploadPage"> Upload </v-btn>
             <v-btn class="red-btn"> Log out</v-btn>
           </v-col>>
@@ -24,7 +24,9 @@ export default {
     };
   },
   methods: {
-    navigateToUploadPage(){ this.$router.push('upload'); }
+    navigateToUploadPage(){ this.$router.push('upload'); },
+    navigateToHomePage(){ this.$router.push('home'); },
+    navigateToMyVideosPage(){ this.$router.push('myVideos'); },
   }
 }
 </script>
