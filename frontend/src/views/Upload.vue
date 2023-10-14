@@ -19,31 +19,18 @@
     <v-col>
       <div class="fill-in-container">
         <v-form>
-          <p style="font-size: 14px">Title</p>
+          <p style="font-size: 14px">Caption</p>
           <v-text-field
             variant="outlined"
             v-model="title"
-            label="Title"
+            label="caption"
+            counter
+            maxlength="100"
             single-line
             :rules="[formRequired]"
             clearable
           ></v-text-field>
-          <p style="font-size: 14px">Description (optional)</p>
-          <v-textarea
-            variant="outlined"
-            v-model="description"
-            counter
-            label="Optional"
-            maxlength="120"
-            single-line
-          ></v-textarea>
           <br />
-<!--          <v-row v-if="this.video">-->
-<!--            <p style="font-size: 14px;margin-left:8px">Thumbnail</p>-->
-<!--            <div class="thumbnail">-->
-<!--              <canvas id="output"></canvas>-->
-<!--            </div>-->
-<!--          </v-row>-->
           <v-row>
             <v-col align="end">
               <v-btn class="reg-btn" @click="navigateToHomePage">
@@ -51,9 +38,8 @@
               </v-btn>
               <v-btn
                 class="red-btn"
-                :loading="loading"
-                type="submit"
                 :disabled="!uploadRequired"
+                @click="uploadVideo"
               >
                 Upload
               </v-btn>
@@ -67,15 +53,17 @@
 </template>
 
 <script>
+import axios from 'axios'
 import Navbar from '@/components/Navbar.vue'
+import { isJwtExpired } from 'jwt-check-expiration';
 export default {
   components: {Navbar},
   data(){
     return{
-      video: null,
+      video: '',
       thumbnail: null,
       title: null,
-      description: null,
+      extURL:'',
       formRequired: value => !!value || 'Field is required',
     }
   },
@@ -85,18 +73,41 @@ export default {
     },
   },
   methods: {
-    capture(){
-      var video = document.getElementById('video-preview');
-      var canvas = document.getElementById('output');
-      var context = canvas.getContext('2d');
-      canvas.width = video.videoWidth/2;
-      canvas.height = video.videoHeight/2;
-      context.drawImage(video, 0, 0, canvas.width, canvas.height);
-      var img = new Image();
-      img.src = canvas.toDataURL();
-      this.thumbnail = img;
+    uploadVideoToS3() {
+      const filename = this.video.name;
+      const fileExtension = filename.slice(((filename.lastIndexOf(".") - 1) >>> 0) + 2);
+      axios.get('http://localhost:8080/api/s3/generate-upload-url/' + fileExtension)
+        .then((res) => {
+          let data = res.data;
+          this.extURL = data.message;
+          // Once this.extURL is set, call putVideo
+          this.putVideo();
+        })
+        .catch((error) => {
+          console.error("Error while fetching extURL:", error);
+        });
     },
-
+    putVideo() {
+      console.log(this.extURL)
+      let data = this.video.name;
+      let config = {
+        method: 'put',
+        maxBodyLength: Infinity,
+        url: this.extURL,
+        headers: {
+          'Content-Type': this.video.type
+        },
+        data: data
+      };
+      axios.request(config)
+        .then((response) => {
+          console.log(JSON.stringify(response.data));
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+      this.navigateToMyVideos();
+    },
     remove(){
       const videoElement = document.getElementById('video-preview');
       videoElement.pause();
@@ -136,48 +147,35 @@ export default {
       }
     },
     navigateToHomePage(){ this.$router.push('home'); },
-    checkVideo(file) {
-      const videoElement = document.createElement('video');
-      videoElement.src = URL.createObjectURL(file);
-
-      videoElement.onloadedmetadata = () => {
-        const durationInSeconds = videoElement.duration;
-
-        if (durationInSeconds > 1) {
-          // Set the video in the Vue data
-          this.video = URL.createObjectURL(file);
-
-          // Set the thumbnail in the Vue data
-          this.thumbnail = URL.createObjectURL(file);
-        } else {
-          alert("The selected video must be longer than 1 second.");
-        }
-
-        // Clean up
-        videoElement.remove();
-      };
-    },
+    navigateToMyVideos(){ this.$router.push('myVideos'); },
     async uploadVideo(){
       if (!this.video) {
         alert('Please select a video to upload.');
         return;
       }
       try {
+        this.uploadVideoToS3();
         const formData = new FormData();
         formData.append('video', this.video)
         formData.append('title', this.title)
-        formData.append('description', this.description)
-        // const response = await axios.post('/api/upload-video', formData, {
-        //   headers: {
-        //     'Content-Type': 'multipart/form-data'
-        //   }
-        // });
+
       } catch (error) {
         console.error('Error uploading video:', error);
       }
+    },
+  },
+  beforeMount() {
+    let jwtToken = localStorage.getItem('token')
+    if (jwtToken && !isJwtExpired(jwtToken)) {
+      axios.defaults.headers.common['Authorization'] = `Bearer ${localStorage.getItem('token')}`;
+      const form = new FormData;
+      form.append("username", localStorage.getItem("username"))
+    } else {
+      localStorage.removeItem('token')
+      axios.defaults.headers.common['Authorization'] = null;
+      this.$router.push({ name: 'welcome'})
     }
-
-  }
+  },
 }
 </script>
 
@@ -247,10 +245,21 @@ export default {
   padding: 0;
   z-index: 1;
 }
-.select-thumbnail {
-  display: flex;
-  justify-content: center;
-  align-items: flex-end;
+.thumbnail-frame{
+  height: 10pc;
+  width: 10pc;
+  place-items: center;
+  overflow: hidden;
+  background: black;
+  position: relative;
+  border-radius: 3px;
 }
+.thumbnail-frame img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: cover;
+}
+
+
 </style>
 

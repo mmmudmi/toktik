@@ -9,7 +9,7 @@
       <v-row class="element-boxes">
         <v-col class="box">
           <div class="line">@username</div>
-          <div class="line">Title</div>
+<!--          <div class="line">Title</div>-->
           <div class="line">Description Description Description Description Description</div>
         </v-col>
         <!--        likes, comments, icons -->
@@ -36,6 +36,7 @@
 <script >
 import axios from 'axios'
 import Navbar from '@/components/Navbar.vue'
+import { isJwtExpired } from 'jwt-check-expiration';
 export default {
   components: {Navbar},
   data(){
@@ -87,7 +88,17 @@ export default {
     this.getVideo()
   },
   beforeMount() {
-  }
+    let jwtToken = localStorage.getItem('token')
+    if (jwtToken && !isJwtExpired(jwtToken)) {
+      axios.defaults.headers.common['Authorization'] = `Bearer ${localStorage.getItem('token')}`;
+      const form = new FormData;
+      form.append("username", localStorage.getItem("username"))
+    } else {
+      localStorage.removeItem('token')
+      axios.defaults.headers.common['Authorization'] = null;
+      this.$router.push({ name: 'welcome'})
+    }
+  },
 }
 </script>
 
@@ -100,6 +111,7 @@ export default {
   align-items: center;
   justify-content: center;
   height: 95vh;
+  //background-color: black;
 }
 .navigation-buttons{
   z-index: 1;

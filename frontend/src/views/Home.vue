@@ -22,12 +22,10 @@
 
 <script>
   import Navbar from '@/components/Navbar.vue'
-  import {ca} from "vuetify/locale";
+  import axios from 'axios';
+  import { isJwtExpired } from 'jwt-check-expiration';
   export default {
     computed: {
-      ca() {
-        return ca
-      }
     },
     components: {Navbar},
     data(){
@@ -46,6 +44,18 @@
       redirect(id){
         this.$router.push({ name: 'play', params: { id } })
       },
+    },
+    beforeMount() {
+      let jwtToken = localStorage.getItem('token')
+      if (jwtToken && !isJwtExpired(jwtToken)) {
+        axios.defaults.headers.common['Authorization'] = `Bearer ${localStorage.getItem('token')}`;
+        const form = new FormData;
+        form.append("username", localStorage.getItem("username"))
+      } else {
+        localStorage.removeItem('token')
+        axios.defaults.headers.common['Authorization'] = null;
+        this.$router.push({ name: 'welcome'})
+      }
     },
   }
 </script>
@@ -67,18 +77,6 @@
 }
 .txt-card{
   color: white;
-}
-.card-bottom {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  display: flex;
-  justify-content: space-between;
-  padding: 1pc;
-}
-.text-right {
-  text-align: right;
 }
 .line {
   color: black;
