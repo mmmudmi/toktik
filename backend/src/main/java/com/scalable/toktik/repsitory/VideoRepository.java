@@ -11,4 +11,6 @@ public interface VideoRepository extends CrudRepository<VideoModel, Long> {
     Iterable<VideoModel> findAllByUser(UserModel user);
 
     Optional<VideoModel> findById(Long id);
+
+    VideoModel findByVideo(String video);
 }

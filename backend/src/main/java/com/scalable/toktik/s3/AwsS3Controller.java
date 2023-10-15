@@ -58,6 +58,12 @@ public class AwsS3Controller {
     public BoolResponse accessRequest(S3RequestForm s3RequestForm) {
         return new BoolResponse(true, awsS3Service.generatePreSignedUrl(HttpMethod.GET, s3RequestForm.filename(), bucketName, 30));
     }
+
+    @GetMapping("/delete/{filename}")
+    public BoolResponse deleteRequest(@PathVariable String filename) {
+        awsS3Service.deletedObject(bucketName, videoService.findByVideo(filename));
+        return new BoolResponse(true, "Successfully deleted");
+    }
 }
 
 

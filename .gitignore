@@ -1,8 +1,8 @@
 !**/src/main/**/resources/key/
 !**/src/main/**/resources/application.properties
 
-# Created by https://www.toptal.com/developers/gitignore/api/intellij+all,visualstudiocode,java,vuejs,webstorm+iml
-# Edit at https://www.toptal.com/developers/gitignore?templates=intellij+all,visualstudiocode,java,vuejs,webstorm+iml
+# Created by https://www.toptal.com/developers/gitignore/api/java,intellij+all,pycharm+iml,webstorm+all,visualstudiocode,vue,vuejs
+# Edit at https://www.toptal.com/developers/gitignore?templates=java,intellij+all,pycharm+iml,webstorm+all,visualstudiocode,vue,vuejs
 
 ### Intellij+all ###
 # Covers JetBrains IDEs: IntelliJ, RubyMine, PhpStorm, AppCode, PyCharm, CLion, Android Studio, WebStorm and Rider
@@ -118,34 +118,7 @@ fabric.properties
 hs_err_pid*
 replay_pid*
 
-### VisualStudioCode ###
-.vscode/*
-!.vscode/settings.json
-!.vscode/tasks.json
-!.vscode/launch.json
-!.vscode/extensions.json
-!.vscode/*.code-snippets
-
-# Local History for Visual Studio Code
-.history/
-
-# Built Visual Studio Code Extensions
-*.vsix
-
-### VisualStudioCode Patch ###
-# Ignore all local history of files
-.history
-.ionide
-
-### Vuejs ###
-# Recommended template: Node.gitignore
-
-node_modules/
-dist/
-npm-debug.log
-yarn-error.log
-
-### WebStorm+iml ###
+### PyCharm+iml ###
 # Covers JetBrains IDEs: IntelliJ, RubyMine, PhpStorm, AppCode, PyCharm, CLion, Android Studio, WebStorm and Rider
 # Reference: https://intellij-support.jetbrains.com/hc/en-us/articles/206544839
 
@@ -194,7 +167,7 @@ yarn-error.log
 
 # Android studio 3.1+ serialized cache file
 
-### WebStorm+iml Patch ###
+### PyCharm+iml Patch ###
 # Reason: https://github.com/joeblau/gitignore.io/issues/186#issuecomment-249601023
 
 *.iml
@@ -202,4 +175,97 @@ modules.xml
 .idea/misc.xml
 *.ipr
 
-# End of https://www.toptal.com/developers/gitignore/api/intellij+all,visualstudiocode,java,vuejs,webstorm+iml
+### VisualStudioCode ###
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+!.vscode/*.code-snippets
+
+# Local History for Visual Studio Code
+.history/
+
+# Built Visual Studio Code Extensions
+*.vsix
+
+### VisualStudioCode Patch ###
+# Ignore all local history of files
+.history
+.ionide
+
+### Vue ###
+# gitignore template for Vue.js projects
+#
+# Recommended template: Node.gitignore
+
+# TODO: where does this rule come from?
+docs/_book
+
+# TODO: where does this rule come from?
+test/
+
+### Vuejs ###
+# Recommended template: Node.gitignore
+
+node_modules/
+dist/
+npm-debug.log
+yarn-error.log
+
+### WebStorm+all ###
+# Covers JetBrains IDEs: IntelliJ, RubyMine, PhpStorm, AppCode, PyCharm, CLion, Android Studio, WebStorm and Rider
+# Reference: https://intellij-support.jetbrains.com/hc/en-us/articles/206544839
+
+# User-specific stuff
+
+# AWS User-specific
+
+# Generated files
+
+# Sensitive or high-churn files
+
+# Gradle
+
+# Gradle and Maven with auto-import
+# When using Gradle or Maven with auto-import, you should exclude module files,
+# since they will be recreated, and may cause churn.  Uncomment if using
+# auto-import.
+# .idea/artifacts
+# .idea/compiler.xml
+# .idea/jarRepositories.xml
+# .idea/modules.xml
+# .idea/*.iml
+# .idea/modules
+# *.iml
+# *.ipr
+
+# CMake
+
+# Mongo Explorer plugin
+
+# File-based project format
+
+# IntelliJ
+
+# mpeltonen/sbt-idea plugin
+
+# JIRA plugin
+
+# Cursive Clojure plugin
+
+# SonarLint plugin
+
+# Crashlytics plugin (for Android Studio and IntelliJ)
+
+# Editor-based Rest Client
+
+# Android studio 3.1+ serialized cache file
+
+### WebStorm+all Patch ###
+# Ignore everything but code style settings and run configurations
+# that are supposed to be shared within teams.
+
+
+
+# End of https://www.toptal.com/developers/gitignore/api/java,intellij+all,pycharm+iml,webstorm+all,visualstudiocode,vue,vuejsjs,webstorm+iml

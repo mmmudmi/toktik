@@ -27,7 +27,15 @@ public class VideoService {
         return videoRepository.findById(id);
     }
 
+    public VideoModel findByVideo(String filename) {
+        return videoRepository.findByVideo(filename);
+    }
+
     public Iterable<VideoModel> findAllByUser(UserModel user) {
         return videoRepository.findAllByUser(user);
+    }
+
+    public void delete(VideoModel video) {
+        videoRepository.delete(video);
     }
 }
