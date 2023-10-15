@@ -1,0 +1,19 @@
+version: '3'
+
+services:
+  redis:
+    image: redis
+    restart: always
+    command: redis-server --requirepass eYVX7EwVmmxKPCDmwMtyKVge8oLd2t81
+    ports:
+      - "6379:6379"
+    networks:
+      - worker-net
+  worker:
+    image: worker
+    build: ./worker
+    networks:
+      - worker-net
+
+networks:
+  worker-net:
