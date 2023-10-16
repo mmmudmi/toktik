@@ -13,4 +13,6 @@ public interface VideoRepository extends CrudRepository<VideoModel, Long> {
     Optional<VideoModel> findById(Long id);
 
     VideoModel findByVideo(String video);
+
+    VideoModel findVideoModelByVideoStartsWith(String filename);
 }

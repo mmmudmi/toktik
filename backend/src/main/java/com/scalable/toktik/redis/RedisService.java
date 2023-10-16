@@ -15,5 +15,9 @@ public class RedisService {
     public void sendMessageToQueue(String queueName, String message) {
         redisTemplate.opsForList().leftPush(queueName, message);
     }
+
+    public String popMessageFromQueue(String queueName) {
+        return redisTemplate.opsForList().rightPop(queueName);
+    }
 }
 

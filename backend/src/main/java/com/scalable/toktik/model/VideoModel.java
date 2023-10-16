@@ -25,12 +25,12 @@ public class VideoModel extends AbstractModel {
     @Column(name = "likes")
     private Integer likes = 0;
     @Column(name = "is_process")
-    private Boolean is_process = true;
+    private Boolean is_process = false;
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false, updatable = false)
     private UserModel user;
     @OneToMany(mappedBy = "comment", cascade = CascadeType.ALL)
-    private Set<CommentModel> reviews;
+    private Set<CommentModel> comment;
 
     public VideoModel(String video, String preview, String caption, Integer views, Integer likes, Boolean is_process, UserModel user) {
         this.video = video;

@@ -38,4 +38,8 @@ public class VideoService {
     public void delete(VideoModel video) {
         videoRepository.delete(video);
     }
+
+    public VideoModel findVideoStartWith(String filename) {
+        return videoRepository.findVideoModelByVideoStartsWith(filename);
+    }
 }

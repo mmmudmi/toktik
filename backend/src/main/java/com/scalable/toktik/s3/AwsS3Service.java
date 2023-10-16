@@ -39,7 +39,7 @@ public class AwsS3Service {
     }
 
     public List<String> getObjectList(String bucketName) {
-        return amazonS3.listObjectsV2(bucketName, "1f0b6854-de54-4bac-b3c3-8b90f3e321de")
+        return amazonS3.listObjectsV2(bucketName)
                 .getObjectSummaries()
                 .stream()
                 .map(S3ObjectSummary::getKey)
