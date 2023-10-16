@@ -5,9 +5,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Table;
+import javax.persistence.*;
+import java.util.Set;
 
 
 @Getter
@@ -27,9 +26,11 @@ public class UserModel extends AbstractModel {
     private String password;
     @Column(name = "is_staff")
     private boolean is_staff;
+    @ManyToMany(mappedBy = "users", cascade = CascadeType.REMOVE)
+    private Set<VideoModel> likes;
     //Reverse relations
-//    @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE)
-//    private Set<VideoModel> videos;
+    @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE)
+    private Set<VideoModel> videos;
 //    @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE)
 //    private Set<CommentModel> comments;
 
