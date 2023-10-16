@@ -2,7 +2,8 @@ redis:
   host: redis
   port: 6379
   db_number: 0
-  queue_name: video_queue
+  video_queue: video_queue
+  finish_channel: finish_channel
   password: eYVX7EwVmmxKPCDmwMtyKVge8oLd2t81
 
 s3:
@@ -10,11 +11,4 @@ s3:
   access_key: 9QW8RPAZWCXFNLOWSG74
   endpoint: https://ap-south-1.linodeobjects.com
   bucket: scalable
-
-db:
-  user: toktik
-  database: toktik
-  port: 3306
-  host: 139.162.35.109:3306
-  password: scalable
 

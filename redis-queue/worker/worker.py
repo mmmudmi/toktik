@@ -3,7 +3,6 @@ import os
 from typing import Final
 
 import S3Connector
-import DatabaseConnector
 import RedisConnector
 
 VIDEO_INPUT: Final[str] = r"Video_Input"
@@ -45,7 +44,6 @@ def delete(filename: str) -> None:
 if __name__ == '__main__':
     print("Worker started")
     s3_client = S3Connector.get_s3_client()
-    # db_cursor = DatabaseConnector.getConnection().cursor()
     redis_db = RedisConnector.redis_db()
     if not os.path.exists(VIDEO_INPUT):
         os.mkdir(VIDEO_INPUT)
@@ -53,8 +51,6 @@ if __name__ == '__main__':
         os.mkdir(VIDEO_OUTPUT)
     if not os.path.exists(IMAGE_OUTPUT):
         os.mkdir(IMAGE_OUTPUT)
-    file = "8f2835e3-3099-4cdf-bcb1-eb6b4b5a5044.mp4"
-
     while True:
         print("Load queue")
         file = RedisConnector.redis_queue_pop(redis_db)
@@ -66,6 +62,7 @@ if __name__ == '__main__':
         subprocess.run(["ffmpeg", "-i", f"{VIDEO_INPUT}/{file}", "-codec:", "copy", "-start_number", "0", "-hls_time",
                         VIDEO_CHUNK_SEC, "-hls_list_size", "0", "-f", "hls", f"{VIDEO_OUTPUT}/{filename}.m3u8"])
         upload(s3_client, filename)
+        RedisConnector.redis_publish(redis_db, filename)
         print("Successfully upload file")
         delete(filename)
         S3Connector.delete_s3_file(s3_client, file)
