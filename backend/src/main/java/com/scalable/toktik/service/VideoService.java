@@ -3,8 +3,11 @@ package com.scalable.toktik.service;
 import com.scalable.toktik.model.UserModel;
 import com.scalable.toktik.model.VideoModel;
 import com.scalable.toktik.repsitory.VideoRepository;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -31,8 +34,8 @@ public class VideoService {
         return videoRepository.findByVideo(filename);
     }
 
-    public Iterable<VideoModel> findAllByUser(UserModel user) {
-        return videoRepository.findAllByUser(user);
+    public List<VideoModel> findAllByUser(UserModel user) {
+        return videoRepository.findAllByUserOrderByCreatedDesc(user);
     }
 
     public void delete(VideoModel video) {
@@ -41,5 +44,13 @@ public class VideoService {
 
     public VideoModel findVideoStartWith(String filename) {
         return videoRepository.findVideoModelByVideoStartsWith(filename);
+    }
+
+    public List<VideoModel> getLatest(int page, int size, boolean desc) {
+        if (desc) {
+            return videoRepository.findAllByIs_process(true, PageRequest.of(page, size, Sort.by("created").descending()));
+        } else {
+            return videoRepository.findAllByIs_process(true, PageRequest.of(page, size, Sort.by("created").ascending()));
+        }
     }
 }

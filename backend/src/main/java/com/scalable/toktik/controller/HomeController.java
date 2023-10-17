@@ -18,5 +18,4 @@ public class HomeController {
         this.userService = userService;
         this.commentService = commentService;
     }
-
 }

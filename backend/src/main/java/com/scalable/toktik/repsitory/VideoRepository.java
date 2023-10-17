@@ -2,17 +2,25 @@ package com.scalable.toktik.repsitory;
 
 import com.scalable.toktik.model.UserModel;
 import com.scalable.toktik.model.VideoModel;
-import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.repository.PagingAndSortingRepository;
+import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
-public interface VideoRepository extends CrudRepository<VideoModel, Long> {
+@Repository
+public interface VideoRepository extends PagingAndSortingRepository<VideoModel, Long> {
 
-    Iterable<VideoModel> findAllByUser(UserModel user);
+    List<VideoModel> findAllByUserOrderByCreatedDesc(UserModel user);
+
 
     Optional<VideoModel> findById(Long id);
 
     VideoModel findByVideo(String video);
 
     VideoModel findVideoModelByVideoStartsWith(String filename);
+
+    List<VideoModel> findAllByIs_process(Boolean is_process, Pageable page);
 }
+
