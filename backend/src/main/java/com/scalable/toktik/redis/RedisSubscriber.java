@@ -23,7 +23,7 @@ public class RedisSubscriber implements MessageListener {
         VideoModel video = videoService.findVideoStartWith(messageContent);
         video.setVideo(messageContent + ".m3u8");
         video.setPreview(messageContent + ".jpg");
-        video.setIs_process(true);
+        video.setProcess(true);
         videoService.updateVideo(video);
     }
 }

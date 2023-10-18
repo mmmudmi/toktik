@@ -48,9 +48,9 @@ public class VideoService {
 
     public List<VideoModel> getLatest(int page, int size, boolean desc) {
         if (desc) {
-            return videoRepository.findAllByIs_process(true, PageRequest.of(page, size, Sort.by("created").descending()));
+            return videoRepository.findAllByProcess(true, PageRequest.of(page, size, Sort.by("created").descending()));
         } else {
-            return videoRepository.findAllByIs_process(true, PageRequest.of(page, size, Sort.by("created").ascending()));
+            return videoRepository.findAllByProcess(true, PageRequest.of(page, size, Sort.by("created").ascending()));
         }
     }
 }

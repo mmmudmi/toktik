@@ -23,7 +23,7 @@ public class VideoModel extends AbstractModel {
     @Column(name = "views")
     private Integer views = 0;
     @Column(name = "is_process")
-    private Boolean is_process = false;
+    private Boolean process = false;
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false, updatable = false)
     private UserModel user;
@@ -33,12 +33,12 @@ public class VideoModel extends AbstractModel {
     @JoinTable
     private Set<UserModel> users;
 
-    public VideoModel(String video, String preview, String caption, Integer views, Boolean is_process, UserModel user) {
+    public VideoModel(String video, String preview, String caption, Integer views, Boolean process, UserModel user) {
         this.video = video;
         this.preview = preview;
         this.caption = caption;
         this.views = views;
-        this.is_process = is_process;
+        this.process = process;
         this.user = user;
     }
 
