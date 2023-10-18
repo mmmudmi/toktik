@@ -1,6 +1,5 @@
 package com.scalable.toktik.controller;
 
-import com.amazonaws.HttpMethod;
 import com.scalable.toktik.model.VideoModel;
 import com.scalable.toktik.record.response.BoolResponse;
 import com.scalable.toktik.record.s3.S3CompleteForm;
@@ -18,7 +17,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.UUID;
 
 
 @RestController
@@ -46,8 +44,7 @@ public class VideoController {
         if (extension.isBlank()) {
             return new BoolResponse(false, "Extension variable is require");
         }
-        String signURL = awsS3Service.generatePreSignedUrl(HttpMethod.PUT, UUID.randomUUID() + "." + extension.strip().toLowerCase(), bucketName, 30);
-        return new BoolResponse(true, signURL);
+        return new BoolResponse(true, awsS3Service.generateNewUploadUrl(extension, bucketName, 30));
     }
 
     @PostMapping("/submit")
@@ -68,9 +65,9 @@ public class VideoController {
     }
 
     @GetMapping("/latest")
-    public List<VideoSimpleRecord> getLatest(@RequestParam(name = "page", defaultValue = "0", required = false) Integer page,
-                                             @RequestParam(name = "size", defaultValue = "20", required = false) Integer size,
-                                             @RequestParam(name = "order", defaultValue = "desc", required = false) String order) {
+    public List<VideoSimpleRecord> getLatest(@RequestParam(defaultValue = "0", required = false) Integer page,
+                                             @RequestParam(defaultValue = "20", required = false) Integer size,
+                                             @RequestParam(defaultValue = "desc", required = false) String order) {
         boolean isDesc = order.startsWith("desc");
         return VideoRecordTool.createSimeplRecordList(videoService.getLatest(page, size, isDesc));
     }
