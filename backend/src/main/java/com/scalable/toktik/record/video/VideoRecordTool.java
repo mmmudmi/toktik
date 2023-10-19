@@ -20,7 +20,7 @@ public class VideoRecordTool {
     }
 
     public VideoSimpleRecord createSimpleRecord(VideoModel video) {
-        return new VideoSimpleRecord(video.getVideo(), awsS3Service.generatePreSignedUrl(HttpMethod.GET, video.getPreview(), bucketName, 30), video.getCaption(), video.getViews());
+        return new VideoSimpleRecord(video.getVideo(), awsS3Service.generatePreSignedUrl(HttpMethod.GET, video.getPreview(), bucketName, 30), video.getCaption(), video.getViews(),video.getUser().getUsername());
     }
 
     public List<VideoSimpleRecord> createSimeplRecordList(List<VideoModel> videos) {
