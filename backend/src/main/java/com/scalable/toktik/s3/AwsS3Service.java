@@ -29,6 +29,7 @@ public class AwsS3Service {
         this.videoService = videoService;
     }
 
+
     public String generatePreSignedUrl(HttpMethod httpMethod, String filePath, String bucketName, int validMins) {
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(new Date());
@@ -58,7 +59,6 @@ public class AwsS3Service {
     }
 
     public String downloadPlaylist(String filePath, String bucketName) {
-        System.out.println(filePath);
         S3Object s3Object = amazonS3.getObject(bucketName, filePath);
         StringBuilder content = new StringBuilder();
         try (InputStream objectData = s3Object.getObjectContent();
