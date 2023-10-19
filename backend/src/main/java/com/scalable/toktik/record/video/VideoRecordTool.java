@@ -1,16 +1,29 @@
 package com.scalable.toktik.record.video;
 
+import com.amazonaws.HttpMethod;
 import com.scalable.toktik.model.VideoModel;
+import com.scalable.toktik.s3.AwsS3Service;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+@Service
 public class VideoRecordTool {
 
-    public static VideoSimpleRecord createSimpleRecord(VideoModel video) {
-        return new VideoSimpleRecord(video.getVideo(), video.getPreview(), video.getCaption(), video.getViews());
+    private final AwsS3Service awsS3Service;
+    @Value("${aws.bucketName}")
+    private String bucketName;
+
+    public VideoRecordTool(AwsS3Service awsS3Service) {
+        this.awsS3Service = awsS3Service;
     }
 
-    public static List<VideoSimpleRecord> createSimeplRecordList(List<VideoModel> videos) {
-        return videos.stream().map(VideoRecordTool::createSimpleRecord).toList();
+    public VideoSimpleRecord createSimpleRecord(VideoModel video) {
+        return new VideoSimpleRecord(video.getVideo(), awsS3Service.generatePreSignedUrl(HttpMethod.GET, video.getPreview(), bucketName, 30), video.getCaption(), video.getViews());
+    }
+
+    public List<VideoSimpleRecord> createSimeplRecordList(List<VideoModel> videos) {
+        return videos.stream().map(this::createSimpleRecord).toList();
     }
 }

@@ -32,7 +32,7 @@ public class AwsS3Service {
     public String generatePreSignedUrl(HttpMethod httpMethod, String filePath, String bucketName, int validMins) {
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(new Date());
-        calendar.add(Calendar.MINUTE, validMins); //validity of 10 minutes
+        calendar.add(Calendar.MINUTE, validMins); //validity of n minutes
         return amazonS3.generatePresignedUrl(bucketName, filePath, calendar.getTime(), httpMethod).toString();
     }
 

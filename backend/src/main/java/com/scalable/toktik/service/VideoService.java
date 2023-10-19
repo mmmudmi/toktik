@@ -26,6 +26,12 @@ public class VideoService {
         videoRepository.save(video);
     }
 
+    public void increaseView(String filename) {
+        VideoModel video = videoRepository.findByVideo(filename);
+        video.setViews(video.getViews() + 1);
+        videoRepository.save(video);
+    }
+
     public Optional<VideoModel> findById(Long id) {
         return videoRepository.findById(id);
     }
@@ -51,6 +57,14 @@ public class VideoService {
             return videoRepository.findAllByProcess(true, PageRequest.of(page, size, Sort.by("created").descending()));
         } else {
             return videoRepository.findAllByProcess(true, PageRequest.of(page, size, Sort.by("created").ascending()));
+        }
+    }
+
+    public List<VideoModel> getByViews(int page, int size, boolean desc) {
+        if (desc) {
+            return videoRepository.findAllByProcess(true, PageRequest.of(page, size, Sort.by("views").descending()));
+        } else {
+            return videoRepository.findAllByProcess(true, PageRequest.of(page, size, Sort.by("views").ascending()));
         }
     }
 }

@@ -12,6 +12,7 @@ import com.scalable.toktik.s3.AwsS3Service;
 import com.scalable.toktik.service.UserService;
 import com.scalable.toktik.service.VideoService;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
@@ -20,7 +21,7 @@ import java.util.List;
 
 
 @RestController
-//@PreAuthorize("isAuthenticated()")
+@PreAuthorize("isAuthenticated()")
 @RequestMapping("/video")
 public class VideoController {
 
@@ -28,15 +29,17 @@ public class VideoController {
     private final RedisService redisService;
     private final VideoService videoService;
     private final UserService userService;
+    private final VideoRecordTool videoRecordTool;
     private final String queueName = "video_queue";
     @Value("${aws.bucketName}")
     private String bucketName;
 
-    public VideoController(AwsS3Service awsS3Service, RedisService redisService, VideoService videoService, UserService userService) {
+    public VideoController(AwsS3Service awsS3Service, RedisService redisService, VideoService videoService, UserService userService, VideoRecordTool videoRecordTool) {
         this.awsS3Service = awsS3Service;
         this.redisService = redisService;
         this.videoService = videoService;
         this.userService = userService;
+        this.videoRecordTool = videoRecordTool;
     }
 
     @GetMapping("/upload-url/{extension}")
@@ -69,11 +72,20 @@ public class VideoController {
                                              @RequestParam(defaultValue = "20", required = false) Integer size,
                                              @RequestParam(defaultValue = "desc", required = false) String order) {
         boolean isDesc = order.startsWith("desc");
-        return VideoRecordTool.createSimeplRecordList(videoService.getLatest(page, size, isDesc));
+        return videoRecordTool.createSimeplRecordList(videoService.getLatest(page, size, isDesc));
+    }
+
+    @GetMapping("/views")
+    public List<VideoSimpleRecord> getMostView(@RequestParam(defaultValue = "0", required = false) Integer page,
+                                               @RequestParam(defaultValue = "20", required = false) Integer size,
+                                               @RequestParam(defaultValue = "desc", required = false) String order) {
+        boolean isDesc = order.startsWith("desc");
+        return videoRecordTool.createSimeplRecordList(videoService.getByViews(page, size, isDesc));
     }
 
     @PostMapping("/playlist-access")
     public BoolResponse requestPresignURL(S3RequestForm requestForm) {
+
         if (requestForm.filename().endsWith("m3u8")) {
             String playliist = awsS3Service.downloadPlaylist(requestForm.filename(), bucketName);
             String filename = requestForm.filename().replace(".m3u8", "");
@@ -84,9 +96,10 @@ public class VideoController {
                 }
                 content.append(line).append("\n");
             }
+            videoService.increaseView(requestForm.filename());
             return new BoolResponse(true, content.toString());
         } else {
-            return new BoolResponse(false, "Wrong file format");
+            return new BoolResponse(false, "Wrong format");
         }
     }
 }
