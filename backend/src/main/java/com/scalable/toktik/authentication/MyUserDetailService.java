@@ -23,7 +23,7 @@ public class MyUserDetailService implements UserDetailsService {
             throw new UsernameNotFoundException("Invalid username or password");
         }
         User.UserBuilder builder = User.withUsername(user.getUsername()).password(user.getPassword());
-        if (user.is_staff()) {
+        if (user.isStaff()) {
             return builder.roles("ADMIN").build();
         } else {
             return builder.roles("USER").build();

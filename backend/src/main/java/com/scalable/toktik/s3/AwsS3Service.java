@@ -58,13 +58,14 @@ public class AwsS3Service {
     }
 
     public String downloadPlaylist(String filePath, String bucketName) {
+        System.out.println(filePath);
         S3Object s3Object = amazonS3.getObject(bucketName, filePath);
         StringBuilder content = new StringBuilder();
         try (InputStream objectData = s3Object.getObjectContent();
              BufferedReader reader = new BufferedReader(new InputStreamReader(objectData))) {
             String line;
             while ((line = reader.readLine()) != null) {
-                content.append(line);
+                content.append(line).append("\n");
             }
             return content.toString();
         } catch (IOException e) {

@@ -1,5 +1,6 @@
 package com.scalable.toktik.controller;
 
+import com.amazonaws.HttpMethod;
 import com.scalable.toktik.model.VideoModel;
 import com.scalable.toktik.record.response.BoolResponse;
 import com.scalable.toktik.record.s3.S3CompleteForm;
@@ -11,7 +12,6 @@ import com.scalable.toktik.s3.AwsS3Service;
 import com.scalable.toktik.service.UserService;
 import com.scalable.toktik.service.VideoService;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
@@ -20,7 +20,7 @@ import java.util.List;
 
 
 @RestController
-@PreAuthorize("isAuthenticated()")
+//@PreAuthorize("isAuthenticated()")
 @RequestMapping("/video")
 public class VideoController {
 
@@ -75,8 +75,16 @@ public class VideoController {
     @PostMapping("/playlist-access")
     public BoolResponse requestPresignURL(S3RequestForm requestForm) {
         if (requestForm.filename().endsWith("m3u8")) {
-            // TODO: FInish implement
-            return new BoolResponse(true, "playlist here");
+            String playliist = awsS3Service.downloadPlaylist(requestForm.filename(), bucketName);
+            String filename = requestForm.filename().replace(".m3u8", "");
+            StringBuilder content = new StringBuilder();
+            for (String line : playliist.split("\n")) {
+                if (line.startsWith(filename) && line.endsWith(".ts")) {
+                    line = awsS3Service.generatePreSignedUrl(HttpMethod.GET, filename + "/" + line.strip(), bucketName, 30);
+                }
+                content.append(line).append("\n");
+            }
+            return new BoolResponse(true, content.toString());
         } else {
             return new BoolResponse(false, "Wrong file format");
         }
