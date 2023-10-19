@@ -7,9 +7,8 @@ COPY ./ ./
 RUN mvn package
 
 FROM openjdk:latest
-
-# COPY --from=build /app/target/toktik-0.0.1-SNAPSHOT.jar ./
 COPY /target/toktik-0.0.1-SNAPSHOT.jar toktik-0.0.1-SNAPSHOT.jar
+EXPOSE 8080
 CMD ["java","-jar","/toktik-0.0.1-SNAPSHOT.jar"]
 
 
