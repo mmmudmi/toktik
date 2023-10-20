@@ -2,8 +2,8 @@ package com.scalable.toktik.controller;
 
 import com.scalable.toktik.model.UserModel;
 import com.scalable.toktik.model.VideoModel;
+import com.scalable.toktik.record.video.VideoDetailRecord;
 import com.scalable.toktik.record.video.VideoRecordTool;
-import com.scalable.toktik.record.video.VideoSimpleRecord;
 import com.scalable.toktik.service.UserService;
 import com.scalable.toktik.service.VideoService;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -31,9 +31,9 @@ public class UserController {
     }
 
     @GetMapping("/profile")
-    public List<VideoSimpleRecord> userProfile(@AuthenticationPrincipal UserDetails userDetails) {
+    public List<VideoDetailRecord> userProfile(@AuthenticationPrincipal UserDetails userDetails) {
         UserModel user = userService.findByUsername(userDetails.getUsername());
         List<VideoModel> videos = videoService.findAllByUser(user);
-        return videoRecordTool.createSimepleRecordList(videos);
+        return videoRecordTool.createDetailRecordList(videos);
     }
 }
