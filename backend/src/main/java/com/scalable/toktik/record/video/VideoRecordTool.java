@@ -21,7 +21,7 @@ public class VideoRecordTool {
 
     public VideoSimpleRecord createSimpleRecord(VideoModel video) {
 
-        return new VideoSimpleRecord(video.getVideo(), presignTool(video.getPreview()), video.getCaption(), video.getViews(), video.getUser().getUsername());
+        return new VideoSimpleRecord(video.getId(), video.getVideo(), presignTool(video.getPreview()), video.getCaption(), video.getViews(), video.getUser().getUsername());
     }
 
     public List<VideoSimpleRecord> createSimepleRecordList(List<VideoModel> videos) {
@@ -29,7 +29,7 @@ public class VideoRecordTool {
     }
 
     public VideoDetailRecord createDetailRecord(VideoModel video) {
-        return new VideoDetailRecord(video.getVideo(), presignTool(video.getPreview()), video.getCaption(), video.getViews(), video.getUser().getUsername(), video.getProcess());
+        return new VideoDetailRecord(video.getId(), video.getVideo(), presignTool(video.getPreview()), video.getCaption(), video.getViews(), video.getUser().getUsername(), video.getProcess());
     }
 
     public List<VideoDetailRecord> createDetailRecordList(List<VideoModel> videos) {
