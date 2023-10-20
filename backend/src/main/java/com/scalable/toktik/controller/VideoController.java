@@ -4,7 +4,6 @@ import com.amazonaws.HttpMethod;
 import com.scalable.toktik.model.VideoModel;
 import com.scalable.toktik.record.response.BoolResponse;
 import com.scalable.toktik.record.s3.S3CompleteForm;
-import com.scalable.toktik.record.s3.S3RequestForm;
 import com.scalable.toktik.record.video.VideoDetailRecord;
 import com.scalable.toktik.record.video.VideoRecordTool;
 import com.scalable.toktik.record.video.VideoSimpleRecord;
@@ -93,32 +92,8 @@ public class VideoController {
         return videoRecordTool.createSimepleRecordList(videoService.getByViews(page, size, isDesc));
     }
 
-    @PostMapping("/playlist-access")
-    @Cacheable(value = "video", key = "{#methodName, #requestForm.filename()}")
-    public BoolResponse requestPresignURL(S3RequestForm requestForm) {
-        if (requestForm.filename().endsWith("m3u8")) {
-            String playliist = awsS3Service.downloadPlaylist(requestForm.filename(), bucketName);
-            String filename = requestForm.filename().replace(".m3u8", "");
-            StringBuilder content = new StringBuilder();
-            for (String line : playliist.split("\n")) {
-                if (line.startsWith(filename) && line.endsWith(".ts")) {
-                    line = awsS3Service.generatePreSignedUrl(HttpMethod.GET, filename + "/" + line.strip(), bucketName, 30);
-                }
-                content.append(line).append("\n");
-            }
-            VideoModel video = videoService.findByVideo(requestForm.filename()).orElse(null);
-            if (video == null) {
-                throw new ResponseStatusException(HttpStatus.NOT_FOUND);
-            }
-            videoService.increaseView(video);
-            return new BoolResponse(true, content.toString());
-        } else {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
-        }
-    }
-
     @GetMapping("/playlist/{filename}")
-    public @ResponseBody byte[] requestPresignPlaylist(@RequestParam String filename) {
+    public @ResponseBody byte[] requestPresignPlaylist(@PathVariable String filename) {
         if (filename.endsWith("m3u8")) {
             String playliist = awsS3Service.downloadPlaylist(filename, bucketName);
             String withoutExt = filename.replace(".m3u8", "");
