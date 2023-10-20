@@ -5,6 +5,7 @@ import com.scalable.toktik.model.VideoModel;
 import com.scalable.toktik.record.response.BoolResponse;
 import com.scalable.toktik.record.s3.S3CompleteForm;
 import com.scalable.toktik.record.s3.S3RequestForm;
+import com.scalable.toktik.record.video.VideoDetailRecord;
 import com.scalable.toktik.record.video.VideoRecordTool;
 import com.scalable.toktik.record.video.VideoSimpleRecord;
 import com.scalable.toktik.redis.RedisService;
@@ -13,10 +14,12 @@ import com.scalable.toktik.service.UserService;
 import com.scalable.toktik.service.VideoService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
@@ -61,9 +64,12 @@ public class VideoController {
 
     @GetMapping("/delete/{filename}")
     public BoolResponse deleteRequest(@PathVariable String filename, @AuthenticationPrincipal UserDetails userDetails) {
-        VideoModel video = videoService.findByVideo(filename);
+        VideoModel video = videoService.findByVideo(filename).orElse(null);
+        if (video == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+        }
         if (!video.getUser().getId().equals(userService.findByUsername(userDetails.getUsername()).getId())) {
-            return new BoolResponse(false, "You don't have access to this video");
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN);
         }
         awsS3Service.deletedObject(bucketName, video);
         return new BoolResponse(true, "Successfully deleted");
@@ -75,7 +81,7 @@ public class VideoController {
                                              @RequestParam(defaultValue = "20", required = false) Integer size,
                                              @RequestParam(defaultValue = "desc", required = false) String order) {
         boolean isDesc = order.startsWith("desc");
-        return videoRecordTool.createSimeplRecordList(videoService.getLatest(page, size, isDesc));
+        return videoRecordTool.createSimepleRecordList(videoService.getLatest(page, size, isDesc));
     }
 
     @GetMapping("/views")
@@ -84,13 +90,12 @@ public class VideoController {
                                                @RequestParam(defaultValue = "20", required = false) Integer size,
                                                @RequestParam(defaultValue = "desc", required = false) String order) {
         boolean isDesc = order.startsWith("desc");
-        return videoRecordTool.createSimeplRecordList(videoService.getByViews(page, size, isDesc));
+        return videoRecordTool.createSimepleRecordList(videoService.getByViews(page, size, isDesc));
     }
 
     @PostMapping("/playlist-access")
     @Cacheable(value = "video", key = "{#methodName, #requestForm.filename()}")
     public BoolResponse requestPresignURL(S3RequestForm requestForm) {
-
         if (requestForm.filename().endsWith("m3u8")) {
             String playliist = awsS3Service.downloadPlaylist(requestForm.filename(), bucketName);
             String filename = requestForm.filename().replace(".m3u8", "");
@@ -101,10 +106,45 @@ public class VideoController {
                 }
                 content.append(line).append("\n");
             }
-            videoService.increaseView(requestForm.filename());
+            VideoModel video = videoService.findByVideo(requestForm.filename()).orElse(null);
+            if (video == null) {
+                throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+            }
+            videoService.increaseView(video);
             return new BoolResponse(true, content.toString());
         } else {
-            return new BoolResponse(false, "Wrong format");
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         }
+    }
+
+    @GetMapping("/playlist/{filename}")
+    public @ResponseBody byte[] requestPresignPlaylist(@RequestParam String filename) {
+        if (filename.endsWith("m3u8")) {
+            String playliist = awsS3Service.downloadPlaylist(filename, bucketName);
+            String withoutExt = filename.replace(".m3u8", "");
+            StringBuilder content = new StringBuilder();
+            for (String line : playliist.split("\n")) {
+                if (line.startsWith(withoutExt) && line.endsWith(".ts")) {
+                    line = awsS3Service.generatePreSignedUrl(HttpMethod.GET, withoutExt + "/" + line.strip(), bucketName, 30);
+                }
+                content.append(line).append("\n");
+            }
+            VideoModel video = videoService.findByVideo(filename).orElse(null);
+            if (video == null) {
+                throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+            }
+            videoService.increaseView(video);
+            return content.toString().getBytes();
+        }
+        throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+    }
+
+    @GetMapping("/detail/{filename}")
+    public VideoDetailRecord videoDetail(@PathVariable String filename) {
+        VideoModel video = videoService.findByVideo(filename).orElse(null);
+        if (video == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+        }
+        return videoRecordTool.createDetailRecord(video);
     }
 }

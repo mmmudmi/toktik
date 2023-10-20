@@ -20,7 +20,10 @@ public class RedisSubscriber implements MessageListener {
         String messageContent = new String(message.getBody());
         System.out.println(messageContent);
         // Add your processing logic here
-        VideoModel video = videoService.findVideoStartWith(messageContent);
+        VideoModel video = videoService.findVideoStartWith(messageContent).orElse(null);
+        if (video == null) {
+            return;
+        }
         video.setVideo(messageContent + ".m3u8");
         video.setPreview(messageContent + ".jpg");
         video.setProcess(true);

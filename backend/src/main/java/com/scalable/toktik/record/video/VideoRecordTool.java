@@ -20,10 +20,23 @@ public class VideoRecordTool {
     }
 
     public VideoSimpleRecord createSimpleRecord(VideoModel video) {
-        return new VideoSimpleRecord(video.getVideo(), awsS3Service.generatePreSignedUrl(HttpMethod.GET, video.getPreview(), bucketName, 30), video.getCaption(), video.getViews(),video.getUser().getUsername());
+
+        return new VideoSimpleRecord(video.getVideo(), presignTool(video.getPreview()), video.getCaption(), video.getViews(), video.getUser().getUsername());
     }
 
-    public List<VideoSimpleRecord> createSimeplRecordList(List<VideoModel> videos) {
+    public List<VideoSimpleRecord> createSimepleRecordList(List<VideoModel> videos) {
         return videos.stream().map(this::createSimpleRecord).toList();
+    }
+
+    public VideoDetailRecord createDetailRecord(VideoModel video) {
+        return new VideoDetailRecord(video.getVideo(), presignTool(video.getPreview()), video.getCaption(), video.getViews(), video.getUser().getUsername(), video.getProcess());
+    }
+
+    public List<VideoDetailRecord> createDetailRecordList(List<VideoModel> videos) {
+        return videos.stream().map(this::createDetailRecord).toList();
+    }
+
+    private String presignTool(String file) {
+        return awsS3Service.generatePreSignedUrl(HttpMethod.GET, file, bucketName, 30);
     }
 }

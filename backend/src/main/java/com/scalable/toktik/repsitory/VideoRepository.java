@@ -17,9 +17,9 @@ public interface VideoRepository extends PagingAndSortingRepository<VideoModel, 
 
     Optional<VideoModel> findById(Long id);
 
-    VideoModel findByVideo(String video);
+    Optional<VideoModel> findByVideo(String video);
 
-    VideoModel findVideoModelByVideoStartsWith(String filename);
+    Optional<VideoModel> findVideoModelByVideoStartsWith(String filename);
 
     List<VideoModel> findAllByProcess(Boolean is_process, Pageable page);
 }

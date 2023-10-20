@@ -26,8 +26,7 @@ public class VideoService {
         videoRepository.save(video);
     }
 
-    public void increaseView(String filename) {
-        VideoModel video = videoRepository.findByVideo(filename);
+    public void increaseView(VideoModel video) {
         video.setViews(video.getViews() + 1);
         videoRepository.save(video);
     }
@@ -36,7 +35,7 @@ public class VideoService {
         return videoRepository.findById(id);
     }
 
-    public VideoModel findByVideo(String filename) {
+    public Optional<VideoModel> findByVideo(String filename) {
         return videoRepository.findByVideo(filename);
     }
 
@@ -48,7 +47,7 @@ public class VideoService {
         videoRepository.delete(video);
     }
 
-    public VideoModel findVideoStartWith(String filename) {
+    public Optional<VideoModel> findVideoStartWith(String filename) {
         return videoRepository.findVideoModelByVideoStartsWith(filename);
     }
 
