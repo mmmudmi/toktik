@@ -48,6 +48,8 @@ public class VideoController {
     }
 
     @GetMapping("/upload-url/{extension}")
+    @PreAuthorize("isAuthenticated()")
+
     public BoolResponse generateUploadUrl(@PathVariable String extension) {
         if (extension.isBlank()) {
             return new BoolResponse(false, "Extension variable is require");
@@ -56,6 +58,8 @@ public class VideoController {
     }
 
     @PostMapping("/submit")
+    @PreAuthorize("isAuthenticated()")
+
     public BoolResponse uploadComplete(S3CompleteForm s3CompleteForm, @AuthenticationPrincipal UserDetails userDetails) {
         videoService.createVideo(s3CompleteForm.filename(), s3CompleteForm.caption(), userService.findByUsername(userDetails.getUsername()));
         redisService.sendMessageToQueue(previewQueue, s3CompleteForm.filename());
@@ -65,6 +69,7 @@ public class VideoController {
 
 
     @GetMapping("/delete/{filename}")
+    @PreAuthorize("isAuthenticated()")
     public BoolResponse deleteRequest(@PathVariable String filename, @AuthenticationPrincipal UserDetails userDetails) {
         VideoModel video = videoService.findByVideo(filename).orElse(null);
         if (video == null) {
