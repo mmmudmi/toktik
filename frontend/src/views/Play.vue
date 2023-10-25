@@ -8,9 +8,9 @@
     <div class="vid-container">
       <v-row class="element-boxes">
         <v-col class="box">
-          <div class="line">@username</div>
+          <div class="line">@{{ this.list.username }}</div>
 <!--          <div class="line">Title</div>-->
-          <div class="line">Description Description Description Description Description</div>
+          <div class="line">{{ this.list.caption }}</div>
         </v-col>
         <!--        likes, comments, icons -->
         <v-col class="box">
@@ -27,35 +27,48 @@
 
         </v-col>
       </v-row>
-      <video :src="this.video" controls autoplay loop></video>
     </div>
 
   </div>
 </template>
 
 <script >
+import videojs from 'video.js';
 import axios from 'axios'
 import Navbar from '@/components/Navbar.vue'
 import { isJwtExpired } from 'jwt-check-expiration';
+
 export default {
+  props: ['filename','id','type'],
   components: {Navbar},
   data(){
     return{
-      videos: {"id1":{"title":"hello","views":2,"user":"mmmummmudmimmmudmimmmudmimmmudmidmi"},
-        "id2":{"title":"hi","views":10,"user":"mimi"},
-        "id3":{"title":"hohoho","views":8,"user":"may"},
-        "id4":{"title":"heyyy","views":2,"user":"mild"},
-        "id5":{"title":"good job","views":13,"user":"mmmudmi"},
-        "id6":{"title":"niceeeeee","views":23,"user":"mmmudmi"},
-        "id7":{"title":"su su","views":20,"user":"mimi"}
-      },
-      current: null,
-      id: null,
-      video: null,
+      list: [],
+      id: 0,
+      player: null,
+      filename: "",
+      video: "http://localhost:8080/api/video/playlist/32896952-3758-45be-8b49-79d9c99090cc.m3u8",
+      type: localStorage.getItem("type"),
       like: false,
     }
   },
   methods:{
+    fetchData(){
+        axios.get("http://localhost:8080/api/video/"+this.type,{
+          params: {page: this.id,size: 1},
+        })
+          .then((res) => {
+            if (res.data.length >= 1) {
+              res.data.forEach(item => this.list.push(item));
+            } 
+          })
+          console.log("list ", this.list)
+      for (i in this.list ) {
+        console.log("list ", i)
+        console.log()
+      }
+      
+    }, 
     goToPreviousVideo() {
       if (this.videoIndex > 0) {
         this.videoIndex--;
@@ -63,13 +76,8 @@ export default {
     },
     getVideo() {
       const form = new FormData();
-      form.append('filename','Snaptik.app_7278649121777421576.mp4')
-      axios.post('http://localhost:8080/api/s3/access-request',form)
-        .then((res) => {
-          let data = res.data
-          this.video = data.message
-          console.log(data.message)
-        })
+      this.video= 'http://localhost:8080/api/video/playlist/32896952-3758-45be-8b49-79d9c99090cc.m3u8'
+
     },
     clickLike() {
       var likeBtn = document.getElementById('like-btn');
@@ -83,9 +91,9 @@ export default {
     },
   },
   mounted() {
-    this.id = this.$route.params.id
-    this.current = this.videos[this.id]
-    this.getVideo()
+    // const src = 'http://localhost:8080/api/video/playlist/32896952-3758-45be-8b49-79d9c99090cc.m3u8'
+    // const src = 'https://bitdash-a.akamaihd.net/content/MI201109210084_1/m3u8s/f08e80da-bf1d-4e3d-8899-f0f6155f6efa.m3u8'
+    // this.playVideo(src)
   },
   beforeMount() {
     let jwtToken = localStorage.getItem('token')
@@ -98,6 +106,8 @@ export default {
       axios.defaults.headers.common['Authorization'] = null;
       this.$router.push({ name: 'welcome'})
     }
+    this.id = parseInt(this.$route.params.id, 10);    
+    this.fetchData()
   },
 }
 </script>
@@ -111,7 +121,7 @@ export default {
   align-items: center;
   justify-content: center;
   height: 95vh;
-  //background-color: black;
+  /* background-color: black; */
 }
 .navigation-buttons{
   z-index: 1;
