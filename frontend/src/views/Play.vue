@@ -1,4 +1,6 @@
 <template>
+  <link href="https://vjs.zencdn.net/8.6.0/video-js.css" rel="stylesheet" />
+
   <Navbar />
   <div class="toktik-page">
     <div class="navigation-buttons">
@@ -28,19 +30,25 @@
         </v-col>
       </v-row>
     </div>
+    <div>
+      <video-player :options="videoOptions" />
+    </div>
+
+
 
   </div>
+  
 </template>
 
 <script >
-import videojs from 'video.js';
 import axios from 'axios'
 import Navbar from '@/components/Navbar.vue'
 import { isJwtExpired } from 'jwt-check-expiration';
+import VideoPlayer from '@/components/VideoPlayer.vue';
 
 export default {
-  props: ['filename','id','type'],
-  components: {Navbar},
+  props: ['id'],
+  components: {Navbar,VideoPlayer},
   data(){
     return{
       list: [],
@@ -50,6 +58,22 @@ export default {
       video: "http://localhost:8080/api/video/playlist/32896952-3758-45be-8b49-79d9c99090cc.m3u8",
       type: localStorage.getItem("type"),
       like: false,
+      videoOptions: {
+        autoplay: true,
+        controls: true,
+        sources: [
+          {
+            src:
+              'http://localhost:8080/api/video/playlist/32896952-3758-45be-8b49-79d9c99090cc.m3u8',
+              type: 'application/x-mpegURL'
+          }
+        ]
+      },
+    }
+  },
+  computed: {
+    player () {
+      return this.$refs.videoPlayer.player
     }
   },
   methods:{
