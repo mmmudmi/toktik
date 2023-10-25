@@ -1,6 +1,10 @@
 <template>
   <Navbar />
   <div style="margin: 2pc">
+    <div id="upload-progress-container" style="display:none">
+      <progress id="upload-progress" value="0" max="100"></progress>
+    </div>
+
     <v-row class="container">
       <div class="circle">
         <p class="initial">{{ this.username[0] || 'U' }}</p>
@@ -9,17 +13,18 @@
       <hr class="line-below-name">
     </v-row>
     <v-row>
-      <v-col v-for="(card, id) in videos" :key="id" cols="12" sm="6" md="3">
+      <v-col v-for="(video,id) in list" :key="id" cols="12" sm="6" md="3">
         <v-card class="card-container" @click="redirect(id)">
           <div class="vid">
-            <v-btn @click="remove" id="remove" density="compact" icon="mdi-close" style="color: #fff; background-color:transparent"></v-btn>
+            <v-btn @click="deleteVideo(video.video)" id="remove" density="compact" icon="mdi-close" style="color: #fff; background-color:transparent"></v-btn>
+            <img :src="video.preview" style="width: 100%;height: 100%;" class="preview" >
             <v-row style="position: relative; left: 1.5pc; bottom: 1.5pc;z-index: 2;">
               <i class="fa fa-play" style="color: white; margin-right: 10px;"></i>
-              <p class="txt-card" style="font-size: 15px;position: absolute;left: 18px;bottom: -3px">{{ card.views }} views</p>
+              <p class="txt-card" style="font-size: 15px;position: absolute;left: 18px;bottom: -3px">{{ video.views }} views</p>
             </v-row>
           </div>
           <div class="description" style="z-index: 2;">
-            <div class="line">caption caption caption caption caption caption caption caption caption</div>
+            <div class="line">{{ video.caption }}</div>
           </div>
         </v-card>
       </v-col>
@@ -32,26 +37,60 @@
 import axios from 'axios';
 import { isJwtExpired } from 'jwt-check-expiration';
 import Navbar from '@/components/Navbar.vue'
+
 export default {
   components: {Navbar},
   data(){
     return{
       username: localStorage.getItem('username'),
-      videos: {"id1":{"caption":"hello","views":2,"user":"mmmummmudmimmmudmimmmudmimmmudmidmi"},
-        "id2":{"caption":"hi","views":10,"user":"mimi"},
-        "id3":{"caption":"hohoho","views":8,"user":"may"},
-        "id4":{"caption":"heyyy","views":2,"user":"mild"},
-        "id5":{"caption":"good job","views":13,"user":"mmmudmi"},
-        "id6":{"caption":"niceeeeee","views":23,"user":"mmmudmi"},
-        "id7":{"caption":"su su","views":20,"user":"mimi"}
-      },
+      list: [],
+      page:-1,
+      size:12,  
     }
   },
   methods:{
+    deleteVideo(filename){
+      axios.get("http://localhost:8080/api/video/delete/"+filename)
+        .then((res) => {
+          alert(res.data.message)
+          this.getList();
+        })
+    },
+    getList() {
+      // VideoSimpleRecord(String video, String preview, String caption, Integer views, String username) 
 
+      axios.get("http://localhost:8080/api/video/latest",{
+        params: {page:0,size:1},
+      })
+        .then((res) => {
+          this.list = res.data
+          console.log(this.list);
+        })
+    },
+    fetchData(){
+        this.page += 1;
+        axios.get("http://localhost:8080/api/video/views",{
+          params: {page: this.page,size: this.size},
+        })
+          .then((res) => {
+            if (res.data.length >= 1) {
+              res.data.forEach(item => this.list.push(item));
+            } else {
+              this.page -=1;
+            }
+            // console.log("fetch: " + this.list);
+          })
+      }, 
   },
   mounted() {
-
+    window.addEventListener("scroll",() => {
+        let scrollTop=document.documentElement.scrollTop;
+        let scrollHeight=document.documentElement.scrollHeight;
+        let clientHeight=document.documentElement.clientHeight;
+        if(scrollTop+clientHeight>=scrollHeight-10) {
+          this.fetchData();
+        }
+      })
   },
   beforeMount() {
     let jwtToken = localStorage.getItem('token')
@@ -64,7 +103,8 @@ export default {
       axios.defaults.headers.common['Authorization'] = null;
       this.$router.push({ name: 'welcome'})
     }
-  },
+    this.fetchData();
+  }
 }
 </script>
 
@@ -76,7 +116,7 @@ export default {
   height: 80px;
   background-color: #000000;
   border-radius: 50%;
-  //border: 2px solid black;
+  /* border: 2px solid black; */
 }
 .initial{
   color: white;
@@ -103,8 +143,10 @@ export default {
    overflow: hidden;
  }
 .vid{
-  padding-top: 100%;
-  background-color: #e3e3e3;
+  height: 25pc;
+  width: 100%;
+  overflow: hidden;
+  background-color: #000000;
 }
 .description{
   background-color: #ffffff;
@@ -142,4 +184,10 @@ export default {
   top: 7px;
   right: 7px;
 }
+.preview{
+  height: 25pc;
+  width: 100%;
+  object-fit: cover;
+}
+
 </style>

@@ -2,19 +2,23 @@
   <Navbar />
   <div style="margin: 2pc;">
     <v-row>
-      <v-col v-for="(card, id) in videos" :key="id" cols="12" sm="6" md="3">
+      <v-col v-for="(video,id) in list" :key="id" cols="12" sm="6" md="3">
         <v-card class="card-container" @click="redirect(id)">
-          <div class="vid">
+          <div class="vid" >
+            <img :src="video.preview" style="width: 100%;height: 100%;" class="preview" >
             <v-row style="position: relative; left: 1.5pc; bottom: 1.5pc;z-index: 2;">
               <i class="fa fa-play" style="color: white; margin-right: 10px;"></i>
-              <p class="txt-card" style="font-size: 15px;position: absolute;left: 18px;bottom: -3px">{{ card.views }} views</p>
+              <p class="txt-card" style="font-size: 15px; position: absolute; left: 18px; bottom: -3px">
+                 {{ video.views }} {{ video.views <= 1 ? 'view' : 'views' }}
+              </p>            
             </v-row>
           </div>
           <div class="description" style="z-index: 2;">
-            <div class="line">caption caption caption caption caption caption caption caption caption</div>
-            <div class="line">@{{ card.user }}</div>
+            <div class="line">{{ video.caption }}</div>
+            <div class="line">@{{ video.username }}</div>
           </div>
         </v-card>
+
       </v-col>
     </v-row>
   </div>
@@ -30,20 +34,39 @@
     components: {Navbar},
     data(){
       return{
-        videos: {"id1":{"caption":"hello","views":2,"user":"mmmummmudmimmmudmimmmudmimmmudmidmi"},
-          "id2":{"caption":"hi","views":10,"user":"mimi"},
-          "id3":{"caption":"hohoho","views":8,"user":"may"},
-          "id4":{"caption":"heyyy","views":2,"user":"mild"},
-          "id5":{"caption":"good job","views":13,"user":"mmmudmi"},
-          "id6":{"caption":"niceeeeee","views":23,"user":"mmmudmi"},
-          "id7":{"caption":"su su","views":20,"user":"mimi"}
-        },
+        list: [],
+        page:-1,
+        size:12,
       }
     },
     methods:{
       redirect(id){
         this.$router.push({ name: 'play', params: { id } })
       },
+      fetchData(){
+        this.page += 1;
+        axios.get("http://localhost:8080/api/video/views",{
+          params: {page: this.page,size: this.size},
+        })
+          .then((res) => {
+            if (res.data.length >= 1) {
+              res.data.forEach(item => this.list.push(item));
+            } else {
+              this.page -=1;
+            }
+            // console.log("fetch: " + this.list);
+          })
+      }, 
+    },
+    mounted() {
+      window.addEventListener("scroll",() => {
+        let scrollTop=document.documentElement.scrollTop;
+        let scrollHeight=document.documentElement.scrollHeight;
+        let clientHeight=document.documentElement.clientHeight;
+        if(scrollTop+clientHeight>=scrollHeight-10) {
+          this.fetchData();
+        }
+      })
     },
     beforeMount() {
       let jwtToken = localStorage.getItem('token')
@@ -56,6 +79,8 @@
         axios.defaults.headers.common['Authorization'] = null;
         this.$router.push({ name: 'welcome'})
       }
+      // VideoSimpleRecord(String video, String preview, String caption, Integer views, String username) 
+      this.fetchData();
     },
   }
 </script>
@@ -65,11 +90,8 @@
 
 .card-container{
   width: 100%;
+  /* height: 100pc; */
   overflow: hidden;
-}
-.vid{
-  padding-top: 100%;
-  background-color: #ffffff;
 }
 .description{
   background-color: #ffffff;
@@ -91,6 +113,12 @@
 .line::-webkit-scrollbar {
   width: 0; /* Hide scrollbar in Webkit browsers */
 }
+.vid{
+  height: 25pc;
+  width: 100%;
+  overflow: hidden;
+  background-color: #000000;
+}
 .vid::before {
   content: '';
   position: absolute;
@@ -101,6 +129,11 @@
   background: linear-gradient(to top, rgba(0, 0, 0, 0.12), rgba(0, 0, 0, 0)); /* Fade from black to transparent */
   z-index: 1;
   pointer-events: none;
+}
+.preview{
+  height: 25pc;
+  width: 100%;
+  object-fit: cover;
 }
 
 </style>
