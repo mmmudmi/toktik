@@ -3,7 +3,6 @@ from typing import Final
 from redis import Redis
 from setting import get_redis_config
 
-VIDEO_QUEUE: Final[str] = get_redis_config("video_queue")
 FINISH_CHANNEL: Final[str] = get_redis_config("finish_channel")
 HOST: Final[str] = get_redis_config("host")
 PORT: Final[str] = get_redis_config("port")
@@ -17,12 +16,12 @@ def redis_db() -> Redis:
     return db
 
 
-def redis_queue_push(db: Redis, message: str):
-    return db.lpush(VIDEO_QUEUE, message)
+def redis_queue_push(db: Redis, video_queue: str, message: str):
+    return db.lpush(video_queue, message)
 
 
-def redis_queue_pop(db) -> str:
-    return db.brpop(VIDEO_QUEUE)[1]
+def redis_queue_pop(db, video_queue: str) -> str:
+    return db.brpop(video_queue)[1]
 
 
 def redis_publish(db, message: str):

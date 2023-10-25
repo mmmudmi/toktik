@@ -9,11 +9,28 @@ services:
       - "6379:6379"
     networks:
       - worker-net
-  worker:
-    image: worker
-    build: ./worker
+  preview_worker:
+    image: preview_worker
+    build:
+      context: ./worker
+      dockerfile: ./Preview/Dockerfile
     networks:
       - worker-net
+  convertor_worker:
+    image: convertor_worker
+    build:
+      context: ./worker
+      dockerfile: ./Convertor/Dockerfile
+    networks:
+      - worker-net
+  chunk_worker:
+    image: chunk_worker
+    build:
+      context: ./worker
+      dockerfile: ./Chunk/Dockerfile
+    networks:
+      - worker-net
+
 
 networks:
   worker-net:

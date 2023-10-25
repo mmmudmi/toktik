@@ -33,7 +33,9 @@ public class VideoController {
     private final VideoService videoService;
     private final UserService userService;
     private final VideoRecordTool videoRecordTool;
-    private final String queueName = "video_queue";
+
+    private final String previewQueue = "preview_queue";
+    private final String convertQueue = "convert_queue";
     @Value("${aws.bucketName}")
     private String bucketName;
 
@@ -56,7 +58,8 @@ public class VideoController {
     @PostMapping("/submit")
     public BoolResponse uploadComplete(S3CompleteForm s3CompleteForm, @AuthenticationPrincipal UserDetails userDetails) {
         videoService.createVideo(s3CompleteForm.filename(), s3CompleteForm.caption(), userService.findByUsername(userDetails.getUsername()));
-        redisService.sendMessageToQueue(queueName, s3CompleteForm.filename());
+        redisService.sendMessageToQueue(previewQueue, s3CompleteForm.filename());
+        redisService.sendMessageToQueue(convertQueue, s3CompleteForm.filename());
         return new BoolResponse(true, "Successfully recorded");
     }
 

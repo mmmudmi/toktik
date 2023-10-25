@@ -2,7 +2,9 @@ redis:
   host: redis
   port: 6379
   db_number: 0
-  video_queue: video_queue
+  preview_queue: preview_queue
+  chunk_queue: chunk_queue
+  convert_queue: convert_queue
   finish_channel: finish_channel
   password: eYVX7EwVmmxKPCDmwMtyKVge8oLd2t81
 
