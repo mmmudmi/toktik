@@ -1,22 +1,23 @@
 <template>
-  <link href="https://vjs.zencdn.net/8.6.0/video-js.css" rel="stylesheet" />
-
   <Navbar />
   <div class="toktik-page">
     <div class="navigation-buttons">
-      <i class="fa fa-chevron-left"></i>
-      <i class="fa fa-chevron-right"></i>
+      <i class="fa fa-chevron-left" @click="goToPreviousVideo"></i>
+      <i class="fa fa-chevron-right" @click="goToNextVideo"></i>
     </div>
+
     <div class="vid-container">
       <v-row class="element-boxes">
+  
+
         <v-col class="box">
-          <div class="line">@{{ this.list.username }}</div>
+          <div class="line">@{{ this.username }}</div>
 <!--          <div class="line">Title</div>-->
-          <div class="line">{{ this.list.caption }}</div>
+          <div class="line">{{ this.caption }}</div>
         </v-col>
         <!--        likes, comments, icons -->
         <v-col class="box">
-          <v-col>
+          <!-- <v-col>
             <i id="like-btn" @click="clickLike" class="fa fa-heart" style="font-size:36px; color: white;">
               <p style="color: white; font-size: 11px;text-align: right;font-family: Roboto;text-align: center">likes</p>
             </i>
@@ -25,16 +26,16 @@
             <i class="fa fa-comment" style="font-size:36px; color: white;">
               <p style="color: white; font-size: 10px;text-align: right;font-family: Roboto;text-align: center">comments</p>
             </i>
-          </v-col>
+          </v-col> -->
 
         </v-col>
+        
       </v-row>
+      <div class="vid">
+          <video-player  ref="player"   :options="videoOptions" ></video-player>
+      </div>
+      
     </div>
-    <div>
-      <video-player :options="videoOptions" />
-    </div>
-
-
 
   </div>
   
@@ -47,25 +48,30 @@ import { isJwtExpired } from 'jwt-check-expiration';
 import VideoPlayer from '@/components/VideoPlayer.vue';
 
 export default {
-  props: ['id'],
   components: {Navbar,VideoPlayer},
   data(){
     return{
+      // localStorage.setItem('type', 'views')
+      //   localStorage.setItem('filename', Filename)
+      //   localStorage.setItem('id', Id)
       list: [],
-      id: 0,
+      id: localStorage.getItem("id"),
       player: null,
       filename: "",
-      video: "http://localhost:8080/api/video/playlist/32896952-3758-45be-8b49-79d9c99090cc.m3u8",
+      video: localStorage.getItem("filename"),
+      caption: "",
+      username: "",
+      views: 0,
       type: localStorage.getItem("type"),
       like: false,
       videoOptions: {
         autoplay: true,
         controls: true,
+        loop: true,
         sources: [
           {
-            src:
-              'http://localhost:8080/api/video/playlist/32896952-3758-45be-8b49-79d9c99090cc.m3u8',
-              type: 'application/x-mpegURL'
+            src: "http://localhost:8080/api/video/playlist/"+localStorage.getItem("filename"),
+            type: 'application/x-mpegURL'
           }
         ]
       },
@@ -73,34 +79,38 @@ export default {
   },
   computed: {
     player () {
-      return this.$refs.videoPlayer.player
+      return this.$refs.player.player
     }
+    
   },
   methods:{
-    fetchData(){
-        axios.get("http://localhost:8080/api/video/"+this.type,{
+    async fetchData(){
+      axios.get("http://localhost:8080/api/video/"+localStorage.getItem("type"),{
           params: {page: this.id,size: 1},
         })
           .then((res) => {
-            if (res.data.length >= 1) {
-              res.data.forEach(item => this.list.push(item));
-            } 
+            if (res.data != null) {
+              res.data.forEach(item => {
+                this.caption = item.caption;
+                this.views = item.views;
+                this.username = item.username;
+              });
+            } else {  //handle only right click
+              this.id -=1;
+            }
           })
-          console.log("list ", this.list)
-      for (i in this.list ) {
-        console.log("list ", i)
-        console.log()
-      }
-      
+      return this.videoOptions;
     }, 
     goToPreviousVideo() {
-      if (this.videoIndex > 0) {
-        this.videoIndex--;
+      if (this.id > 0) {
+        this.id--;
+        // window.location.reload();
+
       }
     },
-    getVideo() {
-      const form = new FormData();
-      this.video= 'http://localhost:8080/api/video/playlist/32896952-3758-45be-8b49-79d9c99090cc.m3u8'
+    goToNextVideo() {
+      this.id++;
+      // window.location.reload();
 
     },
     clickLike() {
@@ -114,25 +124,20 @@ export default {
       }
     },
   },
-  mounted() {
-    // const src = 'http://localhost:8080/api/video/playlist/32896952-3758-45be-8b49-79d9c99090cc.m3u8'
-    // const src = 'https://bitdash-a.akamaihd.net/content/MI201109210084_1/m3u8s/f08e80da-bf1d-4e3d-8899-f0f6155f6efa.m3u8'
-    // this.playVideo(src)
-  },
   beforeMount() {
     let jwtToken = localStorage.getItem('token')
     if (jwtToken && !isJwtExpired(jwtToken)) {
       axios.defaults.headers.common['Authorization'] = `Bearer ${localStorage.getItem('token')}`;
       const form = new FormData;
       form.append("username", localStorage.getItem("username"))
+      this.fetchData();
     } else {
       localStorage.removeItem('token')
       axios.defaults.headers.common['Authorization'] = null;
       this.$router.push({ name: 'welcome'})
     }
-    this.id = parseInt(this.$route.params.id, 10);    
-    this.fetchData()
   },
+  
 }
 </script>
 
@@ -167,8 +172,23 @@ export default {
   overflow: hidden;
   background: black;
   position: relative;
+  
 }
-.vid-container video{
+/* .vid-container video{
+  max-width: 100%;
+  max-height: 100%;
+  width: 100%;
+  height: auto;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+} */
+/* video-player {
+  width: 100%; 
+  height: auto; 
+} */
+.vid{
   max-width: 100%;
   max-height: 100%;
   width: 100%;
@@ -179,7 +199,6 @@ export default {
   transform: translate(-50%, -50%);
 }
 .vid-container::before {
-  content: '';
   position: absolute;
   width: 100%;
   height: 30%;
@@ -227,10 +246,4 @@ export default {
 .line::-webkit-scrollbar {
   width: 0; /* Hide scrollbar in Webkit browsers */
 }
-
-
-
-
-
-
 </style>
