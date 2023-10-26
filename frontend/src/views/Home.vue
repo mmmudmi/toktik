@@ -3,7 +3,7 @@
   <div style="margin: 2pc;">
     <v-row>
       <v-col v-for="(video,id) in list" :key="id" cols="12" sm="6" md="3">
-        <v-card class="card-container" @click="redirect(id)">
+        <v-card class="card-container" @click="redirect(video.video,id)">
           <div class="vid" >
             <img :src="video.preview" style="width: 100%;height: 100%;" class="preview" >
             <v-row style="position: relative; left: 1.5pc; bottom: 1.5pc;z-index: 2;">
@@ -40,8 +40,12 @@
       }
     },
     methods:{
-      redirect(id){
-        this.$router.push({ name: 'play', params: { id } })
+      redirect(Filename,Id){
+        // type = "views" "latest"     path: '/play:filename:type:id:',
+        localStorage.setItem('type', 'views')
+        localStorage.setItem('id', Id)
+        localStorage.setItem('filename', Filename)
+        this.$router.push({ name: 'play'})
       },
       fetchData(){
         this.page += 1;
@@ -54,7 +58,7 @@
             } else {
               this.page -=1;
             }
-            // console.log("fetch: " + this.list);
+            console.log("fetch: " + this.list);
           })
       }, 
     },
@@ -73,14 +77,16 @@
       if (jwtToken && !isJwtExpired(jwtToken)) {
         axios.defaults.headers.common['Authorization'] = `Bearer ${localStorage.getItem('token')}`;
         const form = new FormData;
+        this.fetchData();
         form.append("username", localStorage.getItem("username"))
       } else {
+        
         localStorage.removeItem('token')
         axios.defaults.headers.common['Authorization'] = null;
         this.$router.push({ name: 'welcome'})
       }
       // VideoSimpleRecord(String video, String preview, String caption, Integer views, String username) 
-      this.fetchData();
+      
     },
   }
 </script>
