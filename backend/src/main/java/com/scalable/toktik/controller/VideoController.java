@@ -12,7 +12,6 @@ import com.scalable.toktik.s3.AwsS3Service;
 import com.scalable.toktik.service.UserService;
 import com.scalable.toktik.service.VideoService;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -83,7 +82,7 @@ public class VideoController {
     }
 
     @GetMapping("/latest")
-    @Cacheable(value = "video", key = "{#methodName, #page, #size, #order}")
+//    @Cacheable(value = "video", key = "{#methodName, #page, #size, #order}")
     public List<VideoSimpleRecord> getLatest(@RequestParam(defaultValue = "0", required = false) Integer page,
                                              @RequestParam(defaultValue = "20", required = false) Integer size,
                                              @RequestParam(defaultValue = "desc", required = false) String order) {
@@ -92,7 +91,7 @@ public class VideoController {
     }
 
     @GetMapping("/views")
-    @Cacheable(value = "video", key = "{#methodName, #page, #size, #order}")
+//    @Cacheable(value = "video", key = "{#methodName, #page, #size, #order}")
     public List<VideoSimpleRecord> getMostView(@RequestParam(defaultValue = "0", required = false) Integer page,
                                                @RequestParam(defaultValue = "20", required = false) Integer size,
                                                @RequestParam(defaultValue = "desc", required = false) String order) {
