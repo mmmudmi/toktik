@@ -98,3 +98,8 @@ export default {
   },
 }
 </script>
+<style>
+.video-js {
+    position:inherit;
+}
+</style>
