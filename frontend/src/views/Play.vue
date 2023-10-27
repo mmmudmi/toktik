@@ -1,21 +1,19 @@
 <template>
   <Navbar />
   <div class="toktik-page">
-    <div class="navigation-buttons">
+    <!-- <div class="navigation-buttons">
       <i class="fa fa-chevron-left" @click="goToPreviousVideo" id="goToPreviousVideo"></i>
       <i class="fa fa-chevron-right" @click="goToNextVideo" id="goToNextVideo"></i>
-    </div>
+    </div> -->
     <div class="vid-container">
       <v-row class="element-boxes">
   
-
-        <v-col class="box">
+        <v-col class="caption-box">
           <div class="line">@{{ this.username }}</div>
-<!--          <div class="line">Title</div>-->
           <div class="line">{{ this.caption }}</div>
         </v-col>
         <!--        likes, comments, icons -->
-        <v-col class="box">
+        <!-- <v-col class="box"> -->
           <!-- <v-col>
             <i id="like-btn" @click="clickLike" class="fa fa-heart" style="font-size:36px; color: white;">
               <p style="color: white; font-size: 11px;text-align: right;font-family: Roboto;text-align: center">likes</p>
@@ -26,13 +24,12 @@
               <p style="color: white; font-size: 10px;text-align: right;font-family: Roboto;text-align: center">comments</p>
             </i>
           </v-col> -->
-
-        </v-col>
+        <!-- </v-col> -->
         
       </v-row>
-      <div class="vid">
-          <video-player  ref="player" :options="videoOptions" ></video-player>
-        </div>
+      <!-- <div class="vid"> -->
+          <video-player  ref="player" :options="videoOptions"></video-player>
+      <!-- </div> -->
       
     </div>
 
@@ -217,27 +214,13 @@ export default {
 }
 .vid-container{
   height: 100%;
-  width: 28pc;
+  width: 24.5pc;
   place-items: center;
   overflow: hidden;
   background: rgb(0, 0, 0);
   position: relative;
   
 }
-/* .vid-container video{
-  max-width: 100%;
-  max-height: 100%;
-  width: 100%;
-  height: auto;
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-} */
-/* video-player {
-  width: 100%; 
-  height: auto; 
-} */
 .vid{
   max-width: 100%;
   max-height: 100%;
@@ -266,16 +249,17 @@ export default {
   right: 0.4pc;
   bottom: 0pc;
 }
-.box{
+.caption-box{
   position: relative;
   z-index: 3;
   width: 75%;
   overflow: hidden;
+  bottom: 1pc;
 }
-.box:nth-child(1){
+.caption-box:nth-child(1){
   pointer-events: none;
 }
-.box:nth-child(2){
+.caption-box:nth-child(2){
   width: 20%;
   height: 20%;
   text-align: right;
@@ -295,5 +279,19 @@ export default {
 }
 .line::-webkit-scrollbar {
   width: 0; /* Hide scrollbar in Webkit browsers */
+}
+.video-js{
+    display: inline-block;
+    vertical-align: top;
+    box-sizing: border-box;
+    color: #fff;
+    background-color: #000;
+    padding: 0;
+    font-size: 10px;
+    line-height: 1;
+    font-weight: 400;
+    font-style: normal;
+    font-family: Arial,Helvetica,sans-serif;
+    word-break: initial;
 }
 </style>
