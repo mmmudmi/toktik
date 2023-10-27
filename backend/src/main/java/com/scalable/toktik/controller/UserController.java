@@ -11,6 +11,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
@@ -31,9 +32,13 @@ public class UserController {
     }
 
     @GetMapping("/profile")
-    public List<VideoDetailRecord> userProfile(@AuthenticationPrincipal UserDetails userDetails) {
+    public List<VideoDetailRecord> userProfile(@RequestParam(defaultValue = "0", required = false) Integer page,
+                                               @RequestParam(defaultValue = "20", required = false) Integer size,
+                                               @RequestParam(defaultValue = "desc", required = false) String order,
+                                               @AuthenticationPrincipal UserDetails userDetails) {
         UserModel user = userService.findByUsername(userDetails.getUsername());
-        List<VideoModel> videos = videoService.findAllByUser(user);
+        boolean isDesc = order.startsWith("desc");
+        List<VideoModel> videos = videoService.findAllByUser(user, page, size, isDesc);
         return videoRecordTool.createDetailRecordList(videos);
     }
 }

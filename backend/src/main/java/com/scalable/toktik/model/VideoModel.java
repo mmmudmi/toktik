@@ -14,7 +14,7 @@ import java.util.Set;
 @Table(name = "video")
 @NoArgsConstructor
 public class VideoModel extends AbstractModel {
-    @Column(name = "video", nullable = false) //url
+    @Column(name = "video", nullable = false, unique = true) //url
     private String video;
     @Column(name = "preview", nullable = false) //url
     private String preview;

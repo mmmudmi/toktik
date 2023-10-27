@@ -12,7 +12,7 @@ import java.util.Optional;
 @Repository
 public interface VideoRepository extends PagingAndSortingRepository<VideoModel, Long> {
 
-    List<VideoModel> findAllByUserOrderByCreatedDesc(UserModel user);
+    List<VideoModel> findAllByUser(UserModel user, Pageable page);
 
 
     Optional<VideoModel> findById(Long id);

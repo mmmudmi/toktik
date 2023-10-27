@@ -39,8 +39,11 @@ public class VideoService {
         return videoRepository.findByVideo(filename);
     }
 
-    public List<VideoModel> findAllByUser(UserModel user) {
-        return videoRepository.findAllByUserOrderByCreatedDesc(user);
+    public List<VideoModel> findAllByUser(UserModel user, int page, int size, boolean desc) {
+        if (desc) {
+            return videoRepository.findAllByUser(user, PageRequest.of(page, size, Sort.by("created").descending()));
+        }
+        return videoRepository.findAllByUser(user, PageRequest.of(page, size, Sort.by("created").ascending()));
     }
 
     public void delete(VideoModel video) {
