@@ -55,8 +55,8 @@
         >Log in</u>
       </div>
     </div>
-    <v-img src="src/images/toktik.png" class="background-image"></v-img>
-
+    <v-img src="https://scalable.ap-south-1.linodeobjects.com/toktik.png" class="background-image"></v-img>
+    
     <v-dialog v-model="successDialog" :persistent="true">
       <v-card style="
           background-color: #ffffff;

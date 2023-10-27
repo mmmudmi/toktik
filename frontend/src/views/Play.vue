@@ -2,19 +2,22 @@
   <Navbar />
   <div class="toktik-page">
     <div class="navigation-buttons">
-      <i class="fa fa-chevron-left"></i>
-      <i class="fa fa-chevron-right"></i>
+      <i class="fa fa-chevron-left" @click="goToPreviousVideo"></i>
+      <i class="fa fa-chevron-right" @click="goToNextVideo"></i>
     </div>
+
     <div class="vid-container">
       <v-row class="element-boxes">
+  
+
         <v-col class="box">
-          <div class="line">@username</div>
+          <div class="line">@{{ this.username }}</div>
 <!--          <div class="line">Title</div>-->
-          <div class="line">Description Description Description Description Description</div>
+          <div class="line">{{ this.caption }}</div>
         </v-col>
         <!--        likes, comments, icons -->
         <v-col class="box">
-          <v-col>
+          <!-- <v-col>
             <i id="like-btn" @click="clickLike" class="fa fa-heart" style="font-size:36px; color: white;">
               <p style="color: white; font-size: 11px;text-align: right;font-family: Roboto;text-align: center">likes</p>
             </i>
@@ -23,53 +26,92 @@
             <i class="fa fa-comment" style="font-size:36px; color: white;">
               <p style="color: white; font-size: 10px;text-align: right;font-family: Roboto;text-align: center">comments</p>
             </i>
-          </v-col>
+          </v-col> -->
 
         </v-col>
+        
       </v-row>
-      <video :src="this.video" controls autoplay loop></video>
+      <div class="vid">
+          <video-player  ref="player"   :options="videoOptions" ></video-player>
+      </div>
+      
     </div>
 
   </div>
+  
 </template>
 
 <script >
 import axios from 'axios'
 import Navbar from '@/components/Navbar.vue'
 import { isJwtExpired } from 'jwt-check-expiration';
+import VideoPlayer from '@/components/VideoPlayer.vue';
+
 export default {
-  components: {Navbar},
+  components: {Navbar,VideoPlayer},
   data(){
     return{
-      videos: {"id1":{"title":"hello","views":2,"user":"mmmummmudmimmmudmimmmudmimmmudmidmi"},
-        "id2":{"title":"hi","views":10,"user":"mimi"},
-        "id3":{"title":"hohoho","views":8,"user":"may"},
-        "id4":{"title":"heyyy","views":2,"user":"mild"},
-        "id5":{"title":"good job","views":13,"user":"mmmudmi"},
-        "id6":{"title":"niceeeeee","views":23,"user":"mmmudmi"},
-        "id7":{"title":"su su","views":20,"user":"mimi"}
-      },
-      current: null,
-      id: null,
-      video: null,
+      // localStorage.setItem('type', 'views')
+      //   localStorage.setItem('filename', Filename)
+      //   localStorage.setItem('id', Id)
+      list: [],
+      id: localStorage.getItem("id"),
+      player: null,
+      filename: "",
+      video: localStorage.getItem("filename"),
+      caption: "",
+      username: "",
+      views: 0,
+      type: localStorage.getItem("type"),
       like: false,
+      videoOptions: {
+        autoplay: true,
+        controls: true,
+        loop: true,
+        sources: [
+          {
+            src: "http://localhost:8080/api/video/playlist/"+localStorage.getItem("filename"),
+            type: 'application/x-mpegURL'
+          }
+        ]
+      },
     }
   },
+  computed: {
+    player () {
+      return this.$refs.player.player
+    }
+    
+  },
   methods:{
+    async fetchData(){
+      axios.get("http://localhost:8080/api/video/"+localStorage.getItem("type"),{
+          params: {page: this.id,size: 1},
+        })
+          .then((res) => {
+            if (res.data != null) {
+              res.data.forEach(item => {
+                this.caption = item.caption;
+                this.views = item.views;
+                this.username = item.username;
+              });
+            } else {  //handle only right click
+              this.id -=1;
+            }
+          })
+      return this.videoOptions;
+    }, 
     goToPreviousVideo() {
-      if (this.videoIndex > 0) {
-        this.videoIndex--;
+      if (this.id > 0) {
+        this.id--;
+        // window.location.reload();
+
       }
     },
-    getVideo() {
-      const form = new FormData();
-      form.append('filename','Snaptik.app_7278649121777421576.mp4')
-      axios.post('http://localhost:8080/api/s3/access-request',form)
-        .then((res) => {
-          let data = res.data
-          this.video = data.message
-          console.log(data.message)
-        })
+    goToNextVideo() {
+      this.id++;
+      // window.location.reload();
+
     },
     clickLike() {
       var likeBtn = document.getElementById('like-btn');
@@ -82,23 +124,20 @@ export default {
       }
     },
   },
-  mounted() {
-    this.id = this.$route.params.id
-    this.current = this.videos[this.id]
-    this.getVideo()
-  },
   beforeMount() {
     let jwtToken = localStorage.getItem('token')
     if (jwtToken && !isJwtExpired(jwtToken)) {
       axios.defaults.headers.common['Authorization'] = `Bearer ${localStorage.getItem('token')}`;
       const form = new FormData;
       form.append("username", localStorage.getItem("username"))
+      this.fetchData();
     } else {
       localStorage.removeItem('token')
       axios.defaults.headers.common['Authorization'] = null;
       this.$router.push({ name: 'welcome'})
     }
   },
+  
 }
 </script>
 
@@ -111,7 +150,7 @@ export default {
   align-items: center;
   justify-content: center;
   height: 95vh;
-  //background-color: black;
+  /* background-color: black; */
 }
 .navigation-buttons{
   z-index: 1;
@@ -133,8 +172,23 @@ export default {
   overflow: hidden;
   background: black;
   position: relative;
+  
 }
-.vid-container video{
+/* .vid-container video{
+  max-width: 100%;
+  max-height: 100%;
+  width: 100%;
+  height: auto;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+} */
+/* video-player {
+  width: 100%; 
+  height: auto; 
+} */
+.vid{
   max-width: 100%;
   max-height: 100%;
   width: 100%;
@@ -145,7 +199,6 @@ export default {
   transform: translate(-50%, -50%);
 }
 .vid-container::before {
-  content: '';
   position: absolute;
   width: 100%;
   height: 30%;
@@ -193,10 +246,4 @@ export default {
 .line::-webkit-scrollbar {
   width: 0; /* Hide scrollbar in Webkit browsers */
 }
-
-
-
-
-
-
 </style>

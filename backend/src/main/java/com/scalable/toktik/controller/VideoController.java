@@ -24,6 +24,7 @@ import java.util.List;
 
 
 @RestController
+//@PreAuthorize("isAuthenticated()")
 @RequestMapping("/video")
 public class VideoController {
 

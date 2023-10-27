@@ -23,7 +23,7 @@ const routes = [
         component: () => import('@/views/Upload.vue'),
       },
       {
-        path: '/:id',
+        path: '/watch',
         name: 'play',
         component: () => import('@/views/Play.vue'),
       },

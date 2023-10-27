@@ -1,7 +1,7 @@
 <template>
   <div style="display: flex; justify-content: center;align-items: center;height: 100vh;">
     <div class="container">
-        <v-img src="src/images/toktik.png" style="scale: 0.9;"></v-img>
+        <v-img src="https://scalable.ap-south-1.linodeobjects.com/toktik.png" style="scale: 0.9;"></v-img>
       <v-row class="lower">
 
         <v-btn class="black-btn" style="margin: 0 1pc 0 1pc;width: 7pc;" @click="navigateToLogin">login</v-btn>
@@ -17,7 +17,6 @@ import { isJwtExpired } from 'jwt-check-expiration';
 export default {
   data(){
     return{
-
     }
   },
   methods:{

@@ -14,7 +14,7 @@
     </v-row>
     <v-row>
       <v-col v-for="(video,id) in list" :key="id" cols="12" sm="6" md="3">
-        <v-card class="card-container" @click="redirect(id)">
+        <v-card class="card-container" @click="redirect(video.video,id)">
           <div class="vid">
             <v-btn @click="deleteVideo(video.video)" id="remove" density="compact" icon="mdi-close" style="color: #fff; background-color:transparent"></v-btn>
             <img :src="video.preview" style="width: 100%;height: 100%;" class="preview" >
@@ -49,6 +49,13 @@ export default {
     }
   },
   methods:{
+    redirect(Filename,Id){
+        // type = "views" "profile"     path: '/play:filename:type:id:',
+        localStorage.setItem('type', 'profile')
+        localStorage.setItem('id', Id)
+        localStorage.setItem('filename', Filename)
+        this.$router.push({ name: 'play'})
+      },
     deleteVideo(filename){
       axios.get("http://localhost:8080/api/video/delete/"+filename)
         .then((res) => {
@@ -59,8 +66,8 @@ export default {
     getList() {
       // VideoSimpleRecord(String video, String preview, String caption, Integer views, String username) 
 
-      axios.get("http://localhost:8080/api/video/latest",{
-        params: {page:0,size:1},
+      axios.get("http://localhost:8080/api/video/profile",{
+        params: {page: this.page,size:12},
       })
         .then((res) => {
           this.list = res.data
@@ -78,7 +85,6 @@ export default {
             } else {
               this.page -=1;
             }
-            // console.log("fetch: " + this.list);
           })
       }, 
   },

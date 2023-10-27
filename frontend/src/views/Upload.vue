@@ -1,5 +1,8 @@
 <template>
   <Navbar />
+  <div id="myProgress" style="display:none;">      
+          <div id="myBar"></div>    
+  </div>  
   <v-row style="height: 60vh;">
     <v-col>
       <form enctype="multipart/form-data">
@@ -8,6 +11,7 @@
           <div id="img-view">
             <i class="fa fa-upload" style="color: #6ccbd3; font-size:36px"></i>
             <p class="blue-txt">Click here<br>to upload a video</p>
+            <p class="blue-txt" style="font-size: 13px;">no more than 1 minute</p>
           </div>
         </label>
       </form>
@@ -46,6 +50,12 @@
             </v-col>
           </v-row>
         </v-form>
+        <!-- <br> -->
+        <!-- <div id="myProgress" >
+          <div id="myBar" style="width: {{ this.uploadProgress }}%;">
+            {{ this.uploadProgress }}%
+          </div>
+        </div> -->
       </div>
     </v-col>
   </v-row>
@@ -56,15 +66,15 @@
 import axios from 'axios'
 import Navbar from '@/components/Navbar.vue'
 import { isJwtExpired } from 'jwt-check-expiration';
+
 export default {
   components: {Navbar},
   data(){
     return{
       video: '',
-      thumbnail: null,
       title: null,
-      extURL:'',
       formRequired: value => !!value || 'Field is required',
+      uploadProgress: 0,
     }
   },
   computed: {
@@ -76,37 +86,52 @@ export default {
     uploadVideoToS3() {
       const filename = this.video.name;
       const fileExtension = filename.slice(((filename.lastIndexOf(".") - 1) >>> 0) + 2);
-      axios.get('http://localhost:8080/api/s3/generate-upload-url/' + fileExtension)
+      axios.get('http://localhost:8080/api/video/upload-url/' + fileExtension)
         .then((res) => {
           let data = res.data;
           this.extURL = data.message;
           // Once this.extURL is set, call putVideo
-          this.putVideo();
+          this.putFileToS3();
         })
-        .catch((error) => {
-          console.error("Error while fetching extURL:", error);
-        });
     },
-    putVideo() {
-      console.log(this.extURL)
-      let data = this.video.name;
-      let config = {
-        method: 'put',
-        maxBodyLength: Infinity,
-        url: this.extURL,
-        headers: {
-          'Content-Type': this.video.type
+    async putFileToS3() {
+      const file = this.video;
+      const PUTEndpoint = this.extURL;
+      const FileName = PUTEndpoint.split("/").pop().split("?")[0]; 
+      const options = {
+        headers: { 
+          'Content-Type': file.type,
+          'x-amz-acl': "public-read",
+          Authorization: "",
         },
-        data: data
+        onUploadProgress: (progressEvent) => {
+        this.uploadProgress = Math.round(
+          (progressEvent.loaded / progressEvent.total) * 100
+        );
+      },
       };
-      axios.request(config)
-        .then((response) => {
-          console.log(JSON.stringify(response.data));
-        })
-        .catch((error) => {
-          console.log(error);
-        });
-      this.navigateToMyVideos();
+      
+      try {
+        const response = await axios.put(PUTEndpoint, file,options);
+        this.uploadProgress = 100;
+        this.putFileToBackend(FileName);
+      } catch (error) {
+        console.log(error);
+      }
+    },
+    putFileToBackend(FileName){
+      const form = new FormData();
+      form.append('filename', FileName)
+      form.append('caption', this.title)
+      axios.post("http://localhost:8080/api/video/submit", form)
+        .then((res) => {
+          let data = res.data
+          if (data.success) {
+          } else {
+            alert(data.message)
+          }
+        }).catch(
+            err => { console.log(err)})
     },
     remove(){
       const videoElement = document.getElementById('video-preview');
@@ -129,8 +154,13 @@ export default {
         videoElement.onloadedmetadata = () => {
           const duration = videoElement.duration;
           if (duration < 1) {
+            this.remove();
             document.getElementById('input-file').value = '';
             alert('Please select a video that is at least 1 second long.');
+          } else if (duration > 60) {
+            this.remove();
+            document.getElementById('input-file').value = '';
+            alert('Please select a video that is no more than 1 minute long.');
           }
         };
         videoElement.src = URL.createObjectURL(selectedFile);
@@ -147,7 +177,9 @@ export default {
       }
     },
     navigateToHomePage(){ this.$router.push('home'); },
-    navigateToMyVideos(){ this.$router.push('myVideos'); },
+    navigateToMyVideos(){ 
+      this.$router.push({ path: 'myVideos'});
+    },
     async uploadVideo(){
       if (!this.video) {
         alert('Please select a video to upload.');
@@ -155,10 +187,7 @@ export default {
       }
       try {
         this.uploadVideoToS3();
-        const formData = new FormData();
-        formData.append('video', this.video)
-        formData.append('title', this.title)
-
+        this.navigateToMyVideos();
       } catch (error) {
         console.error('Error uploading video:', error);
       }
@@ -215,8 +244,7 @@ export default {
   right: 0;
   text-align: center;
 }
-#video-preview{
-}
+
 #vid-container{
   display: none;
   margin: 2pc;
@@ -259,7 +287,17 @@ export default {
   max-height: 100%;
   object-fit: cover;
 }
+#myProgress {
+  display: block;
+  width: 100%;
+  /* background-color: #ededed; */
+}
 
-
+#myBar {
+  height: 30px;
+  background-color: #7bd5ba;
+  text-align: center;
+  line-height: 30px;
+  color: white;
+}
 </style>
-
