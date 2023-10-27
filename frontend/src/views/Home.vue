@@ -42,7 +42,7 @@
     methods:{
       redirect(Filename,Id){
         // type = "views" "latest"     path: '/play:filename:type:id:',
-        localStorage.setItem('type', 'views')
+        localStorage.setItem('type', 'video/views')
         localStorage.setItem('id', Id)
         localStorage.setItem('filename', Filename)
         this.$router.push({ name: 'play'})
