@@ -4,12 +4,15 @@
       <v-toolbar-title>
         <v-row align="start">
           <v-col class="shrink">
-            <v-img src="src/images/toktik_wide.png" style="cursor: pointer" width="100" @click="navigateToHomePage"></v-img>
+            <v-img src="https://scalable.ap-south-1.linodeobjects.com/toktik_wide.png" style="cursor: pointer;margin-left:1pc" width="100" @click="navigateToHomePage"></v-img>
           </v-col>
           <v-col align="end">
-            <v-btn class="reg-btn" @click="navigateToMyVideosPage"> My videos </v-btn>
-            <v-btn class="reg-btn" @click="navigateToUploadPage"> Upload </v-btn>
-            <v-btn class="red-btn" @click="logout"> Log out</v-btn>
+            <v-btn class="reg-btn" style="width: 6.2pc" @click="navigateToMyVideosPage"> My videos </v-btn>
+            <v-btn class="reg-btn" style="width: 6.2pc" @click="navigateToUploadPage">
+              <i class="fa fa-plus" style="font-size:12px; padding-right: 5px"></i>
+              Upload
+            </v-btn>
+            <v-btn class="red-btn" style="width: 6.2pc" @click="logout"> Log out</v-btn>
           </v-col>>
         </v-row>
       </v-toolbar-title>
