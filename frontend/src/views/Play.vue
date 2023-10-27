@@ -2,10 +2,9 @@
   <Navbar />
   <div class="toktik-page">
     <div class="navigation-buttons">
-      <i class="fa fa-chevron-left" @click="goToPreviousVideo"></i>
-      <i class="fa fa-chevron-right" @click="goToNextVideo"></i>
+      <i class="fa fa-chevron-left" @click="goToPreviousVideo" id="goToPreviousVideo"></i>
+      <i class="fa fa-chevron-right" @click="goToNextVideo" id="goToNextVideo"></i>
     </div>
-
     <div class="vid-container">
       <v-row class="element-boxes">
   
@@ -32,8 +31,8 @@
         
       </v-row>
       <div class="vid">
-          <video-player  ref="player"   :options="videoOptions" ></video-player>
-      </div>
+          <video-player  ref="player" :options="videoOptions" ></video-player>
+        </div>
       
     </div>
 
@@ -54,14 +53,15 @@ export default {
       // localStorage.setItem('type', 'views')
       //   localStorage.setItem('filename', Filename)
       //   localStorage.setItem('id', Id)
-      list: [],
+
+      prev: null,
+      next: null,
       id: localStorage.getItem("id"),
       player: null,
-      filename: "",
       video: localStorage.getItem("filename"),
       caption: "",
       username: "",
-      views: 0,
+      // views: 0,
       type: localStorage.getItem("type"),
       like: false,
       videoOptions: {
@@ -84,8 +84,16 @@ export default {
     
   },
   methods:{
+    onPlayerPlay({ event, player }) {
+      console.log(event.type);
+      player.setPlaying(true);
+    },
+    onPlayerPause({ event, player }) {
+      console.log(event.type);
+      player.setPlaying(false);
+    },
     async fetchData(){
-      axios.get("http://localhost:8080/api/video/"+localStorage.getItem("type"),{
+      axios.get("http://localhost:8080/api/"+localStorage.getItem("type"),{
           params: {page: this.id,size: 1},
         })
           .then((res) => {
@@ -95,23 +103,59 @@ export default {
                 this.views = item.views;
                 this.username = item.username;
               });
+              this.fetchNext();
+              this.fetchPrev();
             } else {  //handle only right click
               this.id -=1;
             }
           })
-      return this.videoOptions;
     }, 
-    goToPreviousVideo() {
-      if (this.id > 0) {
-        this.id--;
-        // window.location.reload();
+    async fetchPrev() {
+      if (this.id > 0){
+        axios.get("http://localhost:8080/api/"+localStorage.getItem("type"),{
+          params: {page: this.id-1,size: 1},
+        })
+          .then((res) => {
+            const prev = []
+            res.data.forEach(item => prev.push(item));
+            this.prev = prev;
 
-      }
+          })
+          
+      } 
+    },
+    async fetchNext() {
+        axios.get("http://localhost:8080/api/"+localStorage.getItem("type"),{
+          params: {page: this.id+1,size: 1},
+        })
+          .then((res) => {
+            const next = []
+            res.data.forEach(item => next.push(item));
+            
+            if (next != []){
+              this.next = next
+            }
+          })
+          
+    },
+    goToPreviousVideo() {
+      console.log("this.prev: ",this.prev)
+      if (this.prev.length == 1) {
+        console.log("this.prev: ",this.prev)
+        // localStorage.setItem('filename', this.prev.video)
+        // localStorage.setItem('id', this.id--)
+        // window.location.reload()
+
+      } 
     },
     goToNextVideo() {
-      this.id++;
-      // window.location.reload();
-
+      console.log("this.next: ",this.next)
+      if (this.next.length == 1) {
+        console.log("this.next: ",this.next)
+        // localStorage.setItem('filename', this.next.video)
+        // localStorage.setItem('id', this.id++)
+        // window.location.reload()
+      } 
     },
     clickLike() {
       var likeBtn = document.getElementById('like-btn');
@@ -123,6 +167,12 @@ export default {
         this.like = true;
       }
     },
+    togglePlay(){
+      this.player.setPlaying(false);
+    },
+  },
+  mounted(){
+
   },
   beforeMount() {
     let jwtToken = localStorage.getItem('token')
@@ -157,7 +207,7 @@ export default {
   display: flex;
   position: absolute;
   justify-content: space-between; /* Add this line to position icons at the ends */
-  width: 67vh;
+  width: 70vh;
   color: #000000;
   font-size:36px
 }
@@ -170,7 +220,7 @@ export default {
   width: 28pc;
   place-items: center;
   overflow: hidden;
-  background: black;
+  background: rgb(0, 0, 0);
   position: relative;
   
 }
