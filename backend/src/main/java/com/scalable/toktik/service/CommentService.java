@@ -26,8 +26,8 @@ public class CommentService {
         commentRepository.delete(entity);
     }
 
-    public Iterable<CommentModel> getAll() {
-        return commentRepository.findAll();
+    public int commentCount(VideoModel video) {
+        return commentRepository.countByVideo(video);
     }
 
 }

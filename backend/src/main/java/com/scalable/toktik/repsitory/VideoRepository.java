@@ -11,7 +11,6 @@ import java.util.Optional;
 
 @Repository
 public interface VideoRepository extends PagingAndSortingRepository<VideoModel, Long> {
-
     List<VideoModel> findAllByUser(UserModel user, Pageable page);
 
     Optional<VideoModel> findById(Long id);
@@ -21,9 +20,5 @@ public interface VideoRepository extends PagingAndSortingRepository<VideoModel, 
     Optional<VideoModel> findVideoModelByVideoStartsWith(String filename);
 
     List<VideoModel> findAllByProcess(Boolean is_process, Pageable page);
-
-    Integer countByLikes(VideoModel videoModel);
-
-    Integer countByComments(VideoModel videoModel);
 }
 
