@@ -1,10 +1,10 @@
 package com.scalable.toktik.authentication;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.scalable.toktik.model.UserModel;
 import com.scalable.toktik.record.response.BoolResponse;
 import com.scalable.toktik.record.response.CodeResponse;
 import com.scalable.toktik.record.response.ObjectResponse;
+import com.scalable.toktik.record.user.UserRecord;
 import com.scalable.toktik.record.user.UserRecordTool;
 import com.scalable.toktik.security.JWTService;
 import com.scalable.toktik.service.UserService;
@@ -16,7 +16,6 @@ import org.springframework.web.server.ResponseStatusException;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import java.security.Principal;
-import java.util.List;
 import java.util.regex.Pattern;
 
 @RestController
@@ -63,12 +62,12 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ObjectResponse Login(HttpServletRequest request, LoginForm form) {
+    public ObjectResponse<UserRecord> Login(HttpServletRequest request, LoginForm form) {
         try {
             request.login(form.username(), form.password());
-            return new ObjectResponse(true, JWTService.generateToken(form.username()), List.of(UserRecordTool.createRecord(userService.findByUsername(form.username()))));
+            return new ObjectResponse<>(true, JWTService.generateToken(form.username()), UserRecordTool.createRecord(userService.findByUsername(form.username())));
         } catch (ServletException e) {
-            return new ObjectResponse(false, "Invalid username or password.", null);
+            return new ObjectResponse<>(false, "Invalid username or password.", null);
         }
     }
 
@@ -125,7 +124,7 @@ public class AuthController {
         String password2 = form.password2();
         if (user == null) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "This username doesn't exist");
-        } else if (!userService.checkPassword(user, form.oldPassword())) {
+        } else if (!userService.checkPassword(user, form.old_password())) {
             return new CodeResponse(1, "Invalid password");
         }
         String message = passValidator(password1, password2);
@@ -166,7 +165,6 @@ public class AuthController {
     private record NewPassForm(String password1, String password2) {
     }
 
-    private record ChangePassForm(@JsonProperty("old_password") String oldPassword, String password1,
-                                  String password2) {
+    private record ChangePassForm(String old_password, String password1, String password2) {
     }
 }

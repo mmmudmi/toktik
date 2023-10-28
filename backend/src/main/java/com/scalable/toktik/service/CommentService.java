@@ -14,8 +14,8 @@ public class CommentService {
         this.commentRepository = commentRepository;
     }
 
-    public void createComment(UserModel user, VideoModel video, String comment) {
-        commentRepository.save(new CommentModel(user, video, comment));
+    public CommentModel createComment(UserModel user, VideoModel video, String comment) {
+        return commentRepository.save(new CommentModel(user, video, comment));
     }
 
     public CommentModel findById(Long id) {

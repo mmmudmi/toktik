@@ -1,9 +1,14 @@
 package com.scalable.toktik.controller;
 
 import com.amazonaws.HttpMethod;
+import com.scalable.toktik.model.CommentModel;
 import com.scalable.toktik.model.UserModel;
 import com.scalable.toktik.model.VideoModel;
+import com.scalable.toktik.record.comment.CommentForm;
+import com.scalable.toktik.record.comment.CommentRecord;
+import com.scalable.toktik.record.comment.CommentRecordTool;
 import com.scalable.toktik.record.response.BoolResponse;
+import com.scalable.toktik.record.response.ObjectResponse;
 import com.scalable.toktik.record.s3.S3CompleteForm;
 import com.scalable.toktik.record.video.VideoDetailRecord;
 import com.scalable.toktik.record.video.VideoRecordTool;
@@ -66,7 +71,6 @@ public class VideoController {
 
     @PostMapping("/submit")
     @PreAuthorize("isAuthenticated()")
-
     public BoolResponse uploadComplete(S3CompleteForm s3CompleteForm, @AuthenticationPrincipal UserDetails userDetails) {
         videoService.createVideo(s3CompleteForm.filename(), s3CompleteForm.caption(), userService.findByUsername(userDetails.getUsername()));
         redisService.sendMessageToQueue(previewQueue, s3CompleteForm.filename());
@@ -152,7 +156,6 @@ public class VideoController {
     @GetMapping("/like/{filename}")
     @PreAuthorize("isAuthenticated()")
     public BoolResponse videoLike(@PathVariable String filename, @AuthenticationPrincipal UserDetails userDetails) {
-
         VideoModel video = videoService.findByVideo(filename).orElse(null);
         if (video == null) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND);
@@ -161,5 +164,20 @@ public class VideoController {
             return new BoolResponse(true, "You like this video");
         }
         return new BoolResponse(false, "You unlike this video");
+    }
+
+    @PostMapping("/comment")
+    @PreAuthorize("isAuthenticated()")
+    public ObjectResponse<CommentRecord> submitComment(CommentForm commentForm, @AuthenticationPrincipal UserDetails userDetails) {
+        VideoModel video = videoService.findByVideo(commentForm.video()).orElse(null);
+        UserModel user = userService.findByUsername(userDetails.getUsername());
+        if (video == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+        }
+        if (commentForm.comment().isBlank()) {
+            return new ObjectResponse<>(false, "Comment can't empty", null);
+        }
+        CommentModel comment = commentService.createComment( user,video, commentForm.comment());
+        return new ObjectResponse<>(true, "Successfully created new comment", CommentRecordTool.createCommentRecord(comment));
     }
 }
