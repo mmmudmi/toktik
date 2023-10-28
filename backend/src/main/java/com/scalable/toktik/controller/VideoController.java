@@ -1,6 +1,7 @@
 package com.scalable.toktik.controller;
 
 import com.amazonaws.HttpMethod;
+import com.scalable.toktik.model.UserModel;
 import com.scalable.toktik.model.VideoModel;
 import com.scalable.toktik.record.response.BoolResponse;
 import com.scalable.toktik.record.s3.S3CompleteForm;
@@ -9,6 +10,8 @@ import com.scalable.toktik.record.video.VideoRecordTool;
 import com.scalable.toktik.record.video.VideoSimpleRecord;
 import com.scalable.toktik.redis.RedisService;
 import com.scalable.toktik.s3.AwsS3Service;
+import com.scalable.toktik.service.CommentService;
+import com.scalable.toktik.service.LikeService;
 import com.scalable.toktik.service.UserService;
 import com.scalable.toktik.service.VideoService;
 import org.springframework.beans.factory.annotation.Value;
@@ -31,6 +34,9 @@ public class VideoController {
     private final RedisService redisService;
     private final VideoService videoService;
     private final UserService userService;
+
+    private final LikeService likeService;
+    private final CommentService commentService;
     private final VideoRecordTool videoRecordTool;
 
     private final String previewQueue = "preview_queue";
@@ -38,11 +44,13 @@ public class VideoController {
     @Value("${aws.bucketName}")
     private String bucketName;
 
-    public VideoController(AwsS3Service awsS3Service, RedisService redisService, VideoService videoService, UserService userService, VideoRecordTool videoRecordTool) {
+    public VideoController(AwsS3Service awsS3Service, RedisService redisService, VideoService videoService, UserService userService, LikeService likeService, CommentService commentService, VideoRecordTool videoRecordTool) {
         this.awsS3Service = awsS3Service;
         this.redisService = redisService;
         this.videoService = videoService;
         this.userService = userService;
+        this.likeService = likeService;
+        this.commentService = commentService;
         this.videoRecordTool = videoRecordTool;
     }
 
@@ -85,18 +93,28 @@ public class VideoController {
 //    @Cacheable(value = "video", key = "{#methodName, #page, #size, #order}")
     public List<VideoSimpleRecord> getLatest(@RequestParam(defaultValue = "0", required = false) Integer page,
                                              @RequestParam(defaultValue = "20", required = false) Integer size,
-                                             @RequestParam(defaultValue = "desc", required = false) String order) {
+                                             @RequestParam(defaultValue = "desc", required = false) String order,
+                                             @AuthenticationPrincipal UserDetails userDetails) {
+        UserModel user = null;
+        if (userDetails != null && userDetails.getUsername() != null) {
+            user = userService.findByUsername(userDetails.getUsername());
+        }
         boolean isDesc = order.startsWith("desc");
-        return videoRecordTool.createSimepleRecordList(videoService.getLatest(page, size, isDesc));
+        return videoRecordTool.createVideoSimepleRecordList(videoService.getLatest(page, size, isDesc), user);
     }
 
     @GetMapping("/views")
 //    @Cacheable(value = "video", key = "{#methodName, #page, #size, #order}")
     public List<VideoSimpleRecord> getMostView(@RequestParam(defaultValue = "0", required = false) Integer page,
                                                @RequestParam(defaultValue = "20", required = false) Integer size,
-                                               @RequestParam(defaultValue = "desc", required = false) String order) {
+                                               @RequestParam(defaultValue = "desc", required = false) String order,
+                                               @AuthenticationPrincipal UserDetails userDetails) {
+        UserModel user = null;
+        if (userDetails != null && userDetails.getUsername() != null) {
+            user = userService.findByUsername(userDetails.getUsername());
+        }
         boolean isDesc = order.startsWith("desc");
-        return videoRecordTool.createSimepleRecordList(videoService.getByViews(page, size, isDesc));
+        return videoRecordTool.createVideoSimepleRecordList(videoService.getByViews(page, size, isDesc), user);
     }
 
     @GetMapping("/playlist/{filename}")
@@ -122,11 +140,11 @@ public class VideoController {
     }
 
     @GetMapping("/detail/{filename}")
-    public VideoDetailRecord videoDetail(@PathVariable String filename) {
+    public VideoDetailRecord videoDetail(@PathVariable String filename, @AuthenticationPrincipal UserDetails userDetails) {
         VideoModel video = videoService.findByVideo(filename).orElse(null);
         if (video == null) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         }
-        return videoRecordTool.createDetailRecord(video);
+        return videoRecordTool.createDetailRecord(video, userService.findByUsername(userDetails.getUsername()));
     }
 }
