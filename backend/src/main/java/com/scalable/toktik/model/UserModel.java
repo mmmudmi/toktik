@@ -15,7 +15,6 @@ import java.util.Set;
 @Table(name = "users")
 @NoArgsConstructor
 public class UserModel extends AbstractModel {
-
     @Column(name = "username", nullable = false, unique = true)
     private String username;
     @Column(name = "slug", nullable = false, unique = true)
@@ -26,13 +25,13 @@ public class UserModel extends AbstractModel {
     private String password;
     @Column(name = "is_staff")
     private boolean staff;
-    @ManyToMany(mappedBy = "users", cascade = CascadeType.REMOVE)
-    private Set<VideoModel> likes;
     //Reverse relations
     @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE)
     private Set<VideoModel> videos;
-//    @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE)
-//    private Set<CommentModel> comments;
+    @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE)
+    private Set<CommentModel> comments;
+    @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE)
+    private Set<CommentModel> likes;
 
     public UserModel(String username, String slug, String email, String password, boolean staff) {
         this.username = username;

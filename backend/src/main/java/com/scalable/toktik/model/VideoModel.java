@@ -24,15 +24,17 @@ public class VideoModel extends AbstractModel {
     private Integer views = 0;
     @Column(name = "is_process")
     private Boolean process = false;
+    // FK Relation
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false, updatable = false)
     private UserModel user;
-    @OneToMany(mappedBy = "comment", cascade = CascadeType.ALL)
-    private Set<CommentModel> comment;
-    @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
-    @JoinTable
-    private Set<UserModel> users;
+    // Reverse Relation
+    @OneToMany(mappedBy = "video", cascade = CascadeType.ALL)
+    private Set<CommentModel> comments;
+    @OneToMany(mappedBy = "video", cascade = CascadeType.ALL)
+    private Set<LikeModel> likes;
 
+    // M2M relation
     public VideoModel(String video, String preview, String caption, Integer views, Boolean process, UserModel user) {
         this.video = video;
         this.preview = preview;
