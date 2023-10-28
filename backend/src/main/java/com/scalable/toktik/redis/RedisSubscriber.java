@@ -8,7 +8,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class RedisSubscriber implements MessageListener {
-     private final VideoService videoService;
+    private final VideoService videoService;
 
     public RedisSubscriber(VideoService videoService) {
         this.videoService = videoService;
