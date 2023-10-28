@@ -14,17 +14,21 @@
     </v-row>
     <v-row>
       <v-col v-for="(video,id) in list" :key="id" cols="12" sm="6" md="3">
+        <v-btn @click="deleteVideo(video.video)" id="remove" density="compact" icon="mdi-close" style="color: #fff; background-color:transparent" ></v-btn>
         <v-card class="card-container" @click="redirect(video.video,id)">
-          <div class="vid">
-            <v-btn @click="deleteVideo(video.video)" id="remove" density="compact" icon="mdi-close" style="color: #fff; background-color:transparent"></v-btn>
-            <img :src="video.preview" style="width: 100%;height: 100%;" class="preview" >
-            <v-row style="position: relative; left: 1.5pc; bottom: 1.5pc;z-index: 2;">
+          <div class="vid" >
+              <img :src="video.preview" style="width: 100%;height: 100%;" class="preview" v-if="video.is_process">
+              <p v-else style="color: #fff;text-align: center;top: 1pc;"> Uploading...</p>
+            <v-row style="position: relative; left: 1.5pc; bottom: 1.5pc;z-index: 2;" v-if="video.is_process">
               <i class="fa fa-play" style="color: white; margin-right: 10px;"></i>
-              <p class="txt-card" style="font-size: 15px;position: absolute;left: 18px;bottom: -3px">{{ video.views }} views</p>
+              <p class="txt-card" style="font-size: 15px; position: absolute; left: 18px; bottom: -3px">
+                 {{ video.views }} {{ video.views <= 1 ? 'view' : 'views' }}
+              </p>            
             </v-row>
           </div>
           <div class="description" style="z-index: 2;">
             <div class="line">{{ video.caption }}</div>
+            <div class="line">@{{ video.username }}</div>
           </div>
         </v-card>
       </v-col>
@@ -50,8 +54,8 @@ export default {
   },
   methods:{
     redirect(Filename,Id){
-        // type = "views" "profile"     path: '/play:filename:type:id:',
-        localStorage.setItem('type', 'profile')
+        // type = "views" "u/profile"     path: '/play:filename:type:id:',
+        localStorage.setItem('type', 'u/profile')
         localStorage.setItem('id', Id)
         localStorage.setItem('filename', Filename)
         this.$router.push({ name: 'play'})
@@ -66,7 +70,7 @@ export default {
     getList() {
       // VideoSimpleRecord(String video, String preview, String caption, Integer views, String username) 
 
-      axios.get("http://localhost:8080/api/video/profile",{
+      axios.get("http://localhost:8080/api/u/profile",{
         params: {page: this.page,size:12},
       })
         .then((res) => {
@@ -76,7 +80,7 @@ export default {
     },
     fetchData(){
         this.page += 1;
-        axios.get("http://localhost:8080/api/video/views",{
+        axios.get("http://localhost:8080/api/u/profile",{
           params: {page: this.page,size: this.size},
         })
           .then((res) => {
@@ -144,11 +148,12 @@ export default {
   width: 90%;
   margin: 10px 0;
   border: 1px solid #dcdcdc;
-}.card-container{
+}
+.card-container{
    width: 100%;
    overflow: hidden;
  }
-.vid{
+ .vid{
   height: 25pc;
   width: 100%;
   overflow: hidden;
@@ -179,16 +184,17 @@ export default {
   position: absolute;
   width: 100%;
   height: 25%;
-  bottom: 2.9pc;
+  bottom: 4.75pc;
   left: 0;
   background: linear-gradient(to top, rgba(0, 0, 0, 0.12), rgba(0, 0, 0, 0)); /* Fade from black to transparent */
   z-index: 1;
   pointer-events: none;
 }
 #remove{
-  position: absolute;
-  top: 7px;
-  right: 7px;
+  position: relative;
+  top: 2.1pc;
+  right: -.3pc;
+  z-index: 1;
 }
 .preview{
   height: 25pc;

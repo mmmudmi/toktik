@@ -1,22 +1,19 @@
 <template>
   <Navbar />
   <div class="toktik-page">
-    <div class="navigation-buttons">
-      <i class="fa fa-chevron-left" @click="goToPreviousVideo"></i>
-      <i class="fa fa-chevron-right" @click="goToNextVideo"></i>
-    </div>
-
+    <!-- <div class="navigation-buttons">
+      <i class="fa fa-chevron-left" @click="goToPreviousVideo" id="goToPreviousVideo"></i>
+      <i class="fa fa-chevron-right" @click="goToNextVideo" id="goToNextVideo"></i>
+    </div> -->
     <div class="vid-container">
       <v-row class="element-boxes">
   
-
-        <v-col class="box">
+        <v-col class="caption-box">
           <div class="line">@{{ this.username }}</div>
-<!--          <div class="line">Title</div>-->
           <div class="line">{{ this.caption }}</div>
         </v-col>
         <!--        likes, comments, icons -->
-        <v-col class="box">
+        <!-- <v-col class="box"> -->
           <!-- <v-col>
             <i id="like-btn" @click="clickLike" class="fa fa-heart" style="font-size:36px; color: white;">
               <p style="color: white; font-size: 11px;text-align: right;font-family: Roboto;text-align: center">likes</p>
@@ -27,13 +24,12 @@
               <p style="color: white; font-size: 10px;text-align: right;font-family: Roboto;text-align: center">comments</p>
             </i>
           </v-col> -->
-
-        </v-col>
+        <!-- </v-col> -->
         
       </v-row>
-      <div class="vid">
-          <video-player  ref="player"   :options="videoOptions" ></video-player>
-      </div>
+      <!-- <div class="vid"> -->
+          <video-player  ref="player" :options="videoOptions"></video-player>
+      <!-- </div> -->
       
     </div>
 
@@ -54,14 +50,15 @@ export default {
       // localStorage.setItem('type', 'views')
       //   localStorage.setItem('filename', Filename)
       //   localStorage.setItem('id', Id)
-      list: [],
+
+      prev: null,
+      next: null,
       id: localStorage.getItem("id"),
       player: null,
-      filename: "",
       video: localStorage.getItem("filename"),
       caption: "",
       username: "",
-      views: 0,
+      // views: 0,
       type: localStorage.getItem("type"),
       like: false,
       videoOptions: {
@@ -84,8 +81,16 @@ export default {
     
   },
   methods:{
+    onPlayerPlay({ event, player }) {
+      console.log(event.type);
+      player.setPlaying(true);
+    },
+    onPlayerPause({ event, player }) {
+      console.log(event.type);
+      player.setPlaying(false);
+    },
     async fetchData(){
-      axios.get("http://localhost:8080/api/video/"+localStorage.getItem("type"),{
+      axios.get("http://localhost:8080/api/"+localStorage.getItem("type"),{
           params: {page: this.id,size: 1},
         })
           .then((res) => {
@@ -95,23 +100,59 @@ export default {
                 this.views = item.views;
                 this.username = item.username;
               });
+              this.fetchNext();
+              this.fetchPrev();
             } else {  //handle only right click
               this.id -=1;
             }
           })
-      return this.videoOptions;
     }, 
-    goToPreviousVideo() {
-      if (this.id > 0) {
-        this.id--;
-        // window.location.reload();
+    async fetchPrev() {
+      if (this.id > 0){
+        axios.get("http://localhost:8080/api/"+localStorage.getItem("type"),{
+          params: {page: this.id-1,size: 1},
+        })
+          .then((res) => {
+            const prev = []
+            res.data.forEach(item => prev.push(item));
+            this.prev = prev;
 
-      }
+          })
+          
+      } 
+    },
+    async fetchNext() {
+        axios.get("http://localhost:8080/api/"+localStorage.getItem("type"),{
+          params: {page: this.id+1,size: 1},
+        })
+          .then((res) => {
+            const next = []
+            res.data.forEach(item => next.push(item));
+            
+            if (next != []){
+              this.next = next
+            }
+          })
+          
+    },
+    goToPreviousVideo() {
+      console.log("this.prev: ",this.prev)
+      if (this.prev.length == 1) {
+        console.log("this.prev: ",this.prev)
+        // localStorage.setItem('filename', this.prev.video)
+        // localStorage.setItem('id', this.id--)
+        // window.location.reload()
+
+      } 
     },
     goToNextVideo() {
-      this.id++;
-      // window.location.reload();
-
+      console.log("this.next: ",this.next)
+      if (this.next.length == 1) {
+        console.log("this.next: ",this.next)
+        // localStorage.setItem('filename', this.next.video)
+        // localStorage.setItem('id', this.id++)
+        // window.location.reload()
+      } 
     },
     clickLike() {
       var likeBtn = document.getElementById('like-btn');
@@ -123,6 +164,12 @@ export default {
         this.like = true;
       }
     },
+    togglePlay(){
+      this.player.setPlaying(false);
+    },
+  },
+  mounted(){
+
   },
   beforeMount() {
     let jwtToken = localStorage.getItem('token')
@@ -157,7 +204,7 @@ export default {
   display: flex;
   position: absolute;
   justify-content: space-between; /* Add this line to position icons at the ends */
-  width: 67vh;
+  width: 70vh;
   color: #000000;
   font-size:36px
 }
@@ -167,27 +214,13 @@ export default {
 }
 .vid-container{
   height: 100%;
-  width: 28pc;
+  width: 24.5pc;
   place-items: center;
   overflow: hidden;
-  background: black;
+  background: rgb(0, 0, 0);
   position: relative;
   
 }
-/* .vid-container video{
-  max-width: 100%;
-  max-height: 100%;
-  width: 100%;
-  height: auto;
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-} */
-/* video-player {
-  width: 100%; 
-  height: auto; 
-} */
 .vid{
   max-width: 100%;
   max-height: 100%;
@@ -216,16 +249,17 @@ export default {
   right: 0.4pc;
   bottom: 0pc;
 }
-.box{
+.caption-box{
   position: relative;
   z-index: 3;
   width: 75%;
   overflow: hidden;
+  bottom: 1pc;
 }
-.box:nth-child(1){
+.caption-box:nth-child(1){
   pointer-events: none;
 }
-.box:nth-child(2){
+.caption-box:nth-child(2){
   width: 20%;
   height: 20%;
   text-align: right;
@@ -245,5 +279,19 @@ export default {
 }
 .line::-webkit-scrollbar {
   width: 0; /* Hide scrollbar in Webkit browsers */
+}
+.video-js{
+    display: inline-block;
+    vertical-align: top;
+    box-sizing: border-box;
+    color: #fff;
+    background-color: #000;
+    padding: 0;
+    font-size: 10px;
+    line-height: 1;
+    font-weight: 400;
+    font-style: normal;
+    font-family: Arial,Helvetica,sans-serif;
+    word-break: initial;
 }
 </style>

@@ -1,10 +1,16 @@
 <template>
   <div>
-    <video ref="player" class="video-js">
+    <video 
+    :autoplay="autoplay"
+    :width="width"
+    :height="height"
+    ref="player" 
+    class="video-js">
       <slot
       name="controls"
       :play="play"
       :pause="pause"
+      :preload="preload"
       :toggle-play="togglePlay"
       :playing="playing"
     ></slot>
@@ -29,6 +35,10 @@ const EVENTS = [
 export default {
   name: 'VideoPlayer',
   props: {
+    autoplay: { type: Boolean, required: false, default: true },
+    loop: { type: Boolean, required: false, default: true },
+    preload: { type: String, required: false, default: "auto" },
+
     options: {
       type: Object,
       default() {
@@ -88,3 +98,8 @@ export default {
   },
 }
 </script>
+<style>
+.video-js {
+    position:inherit;
+}
+</style>
