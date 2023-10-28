@@ -140,11 +140,26 @@ public class VideoController {
     }
 
     @GetMapping("/detail/{filename}")
+    @PreAuthorize("isAuthenticated()")
     public VideoDetailRecord videoDetail(@PathVariable String filename, @AuthenticationPrincipal UserDetails userDetails) {
         VideoModel video = videoService.findByVideo(filename).orElse(null);
         if (video == null) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         }
         return videoRecordTool.createDetailRecord(video, userService.findByUsername(userDetails.getUsername()));
+    }
+
+    @GetMapping("/like/{filename}")
+    @PreAuthorize("isAuthenticated()")
+    public BoolResponse videoLike(@PathVariable String filename, @AuthenticationPrincipal UserDetails userDetails) {
+
+        VideoModel video = videoService.findByVideo(filename).orElse(null);
+        if (video == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+        }
+        if (likeService.like(video, userService.findByUsername(userDetails.getUsername()))) {
+            return new BoolResponse(true, "You like this video");
+        }
+        return new BoolResponse(false, "You unlike this video");
     }
 }

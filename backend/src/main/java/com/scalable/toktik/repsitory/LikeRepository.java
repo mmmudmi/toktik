@@ -9,4 +9,6 @@ public interface LikeRepository extends PagingAndSortingRepository<LikeModel, Lo
     Integer countByVideo(VideoModel video);
 
     Boolean existsByVideoAndUser(VideoModel video, UserModel user);
+
+    LikeModel findByVideoAndUser(VideoModel video, UserModel user);
 }

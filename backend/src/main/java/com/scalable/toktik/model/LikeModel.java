@@ -23,4 +23,9 @@ public class LikeModel {
     @ManyToOne
     @JoinColumn(name = "video_id", nullable = false, updatable = false)
     private VideoModel video;
+
+    public LikeModel(UserModel user, VideoModel video) {
+        this.user = user;
+        this.video = video;
+    }
 }
