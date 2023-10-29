@@ -3,11 +3,13 @@ package com.scalable.toktik.model.customid;
 import com.scalable.toktik.model.UserModel;
 import com.scalable.toktik.model.VideoModel;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
 import java.util.Objects;
 
 @Getter
+@NoArgsConstructor(force = true)
 public class LikeID implements Serializable {
 
     private final Long user;

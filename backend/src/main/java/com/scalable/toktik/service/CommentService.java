@@ -18,10 +18,6 @@ public class CommentService {
         return commentRepository.save(new CommentModel(user, video, comment));
     }
 
-    public CommentModel findById(Long id) {
-        return commentRepository.findById(id).orElse(null);
-    }
-
     public void delete(CommentModel entity) {
         commentRepository.delete(entity);
     }
