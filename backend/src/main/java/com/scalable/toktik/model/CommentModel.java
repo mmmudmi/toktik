@@ -2,6 +2,7 @@ package com.scalable.toktik.model;
 
 
 import com.scalable.toktik.model.customid.LikeID;
+import com.scalable.toktik.model.extend.AbstractModel;
 import com.scalable.toktik.model.extend.CreatedTime;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -13,14 +14,11 @@ import javax.persistence.*;
 @Setter
 @Entity
 @Table(name = "comments")
-@IdClass(LikeID.class)
 @NoArgsConstructor
-public class CommentModel extends CreatedTime {
-    @Id
+public class CommentModel extends AbstractModel {
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false, updatable = false)
     private UserModel user;
-    @Id
     @ManyToOne
     @JoinColumn(name = "video_id", nullable = false, updatable = false)
     private VideoModel video;
