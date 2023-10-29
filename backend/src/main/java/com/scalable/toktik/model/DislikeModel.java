@@ -13,12 +13,12 @@ import javax.persistence.Table;
 @Getter
 @Setter
 @Entity
-@Table(name = "likes")
+@Table(name = "dislikes")
 @IdClass(LikeID.class)
 @NoArgsConstructor
-public class LikeModel extends LikeAbstractModel {
+public class DislikeModel extends LikeAbstractModel {
 
-    public LikeModel(UserModel user, VideoModel video) {
+    public DislikeModel(UserModel user, VideoModel video) {
         this.setUser(user);
         this.setVideo(video);
     }

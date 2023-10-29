@@ -15,10 +15,7 @@ import com.scalable.toktik.record.video.VideoRecordTool;
 import com.scalable.toktik.record.video.VideoSimpleRecord;
 import com.scalable.toktik.redis.RedisService;
 import com.scalable.toktik.s3.AwsS3Service;
-import com.scalable.toktik.service.CommentService;
-import com.scalable.toktik.service.LikeService;
-import com.scalable.toktik.service.UserService;
-import com.scalable.toktik.service.VideoService;
+import com.scalable.toktik.service.*;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -41,6 +38,7 @@ public class VideoController {
     private final UserService userService;
 
     private final LikeService likeService;
+    private final DislikeService dislikeService;
     private final CommentService commentService;
     private final VideoRecordTool videoRecordTool;
 
@@ -49,12 +47,13 @@ public class VideoController {
     @Value("${aws.bucketName}")
     private String bucketName;
 
-    public VideoController(AwsS3Service awsS3Service, RedisService redisService, VideoService videoService, UserService userService, LikeService likeService, CommentService commentService, VideoRecordTool videoRecordTool) {
+    public VideoController(AwsS3Service awsS3Service, RedisService redisService, VideoService videoService, UserService userService, LikeService likeService, DislikeService dislikeService, CommentService commentService, VideoRecordTool videoRecordTool) {
         this.awsS3Service = awsS3Service;
         this.redisService = redisService;
         this.videoService = videoService;
         this.userService = userService;
         this.likeService = likeService;
+        this.dislikeService = dislikeService;
         this.commentService = commentService;
         this.videoRecordTool = videoRecordTool;
     }
@@ -156,6 +155,7 @@ public class VideoController {
     @GetMapping("/like/{filename}")
     @PreAuthorize("isAuthenticated()")
     public BoolResponse videoLike(@PathVariable String filename, @AuthenticationPrincipal UserDetails userDetails) {
+        /** @return new like state */
         VideoModel video = videoService.findByVideo(filename).orElse(null);
         if (video == null) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND);
@@ -165,6 +165,21 @@ public class VideoController {
         }
         return new BoolResponse(false, "You unlike this video");
     }
+
+    @GetMapping("/dislike/{filename}")
+    @PreAuthorize("isAuthenticated()")
+    public BoolResponse videoDislike(@PathVariable String filename, @AuthenticationPrincipal UserDetails userDetails) {
+        /** @return new like state */
+        VideoModel video = videoService.findByVideo(filename).orElse(null);
+        if (video == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+        }
+        if (dislikeService.dislike(video, userService.findByUsername(userDetails.getUsername()))) {
+            return new BoolResponse(true, "You like this video");
+        }
+        return new BoolResponse(false, "You unlike this video");
+    }
+
 
     @PostMapping("/comment")
     @PreAuthorize("isAuthenticated()")
@@ -177,7 +192,7 @@ public class VideoController {
         if (commentForm.comment().isBlank()) {
             return new ObjectResponse<>(false, "Comment can't empty", null);
         }
-        CommentModel comment = commentService.createComment( user,video, commentForm.comment());
+        CommentModel comment = commentService.createComment(user, video, commentForm.comment());
         return new ObjectResponse<>(true, "Successfully created new comment", CommentRecordTool.createCommentRecord(comment));
     }
 }

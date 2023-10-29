@@ -1,9 +1,7 @@
 package com.scalable.toktik.model;
 
 
-import com.scalable.toktik.model.customid.LikeID;
 import com.scalable.toktik.model.extend.AbstractModel;
-import com.scalable.toktik.model.extend.CreatedTime;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
