@@ -8,7 +8,7 @@ import org.springframework.data.repository.PagingAndSortingRepository;
 
 import java.util.List;
 
-public interface CommentRepository extends PagingAndSortingRepository<CommentModel, LikeID> {
+public interface CommentRepository extends PagingAndSortingRepository<CommentModel, Long> {
     Integer countByVideo(VideoModel video);
 
     List<CommentModel> findAllByVideo(VideoModel video, Pageable page);
