@@ -1,40 +1,55 @@
 <template>
   <Navbar />
   <div class="toktik-page">
-    <!-- <div class="navigation-buttons">
-      <i class="fa fa-chevron-left" @click="goToPreviousVideo" id="goToPreviousVideo"></i>
-      <i class="fa fa-chevron-right" @click="goToNextVideo" id="goToNextVideo"></i>
-    </div> -->
-    <div class="vid-container">
-      <v-row class="element-boxes">
-  
-        <v-col class="caption-box">
-          <div class="line">@{{ this.username }}</div>
-          <div class="line">{{ this.caption }}</div>
-        </v-col>
-        <!--        likes, comments, icons -->
-        <!-- <v-col class="box"> -->
-          <!-- <v-col>
-            <i id="like-btn" @click="clickLike" class="fa fa-heart" style="font-size:36px; color: white;">
-              <p style="color: white; font-size: 11px;text-align: right;font-family: Roboto;text-align: center">likes</p>
-            </i>
-          </v-col>
-          <v-col>
-            <i class="fa fa-comment" style="font-size:36px; color: white;">
-              <p style="color: white; font-size: 10px;text-align: right;font-family: Roboto;text-align: center">comments</p>
-            </i>
-          </v-col> -->
-        <!-- </v-col> -->
-        
-      </v-row>
-      <!-- <div class="vid"> -->
-          <video-player  ref="player" :options="videoOptions"></video-player>
-      <!-- </div> -->
-      
-    </div>
+    
+    <v-row no-gutters>
+      <v-col cols="5" class="left-side">
+        <div class="vid-container">
+          <video-player  ref="player" :options="videoOptions" ></video-player>
+        </div>
+      </v-col>
 
+      <v-col cols="7"  class="right-side">
+        <div class="user-container">
+            <div class="sub-user-container">
+              <div class="circle">
+              <p class="initial">{{ this.username[0] || 'U' }}</p>
+            </div>
+            <p class="line" style="font-weight:600;position: relative;padding: 1pc 1pc 0 1pc; " >@{{ this.username || 'Unknown User' }}</p>
+          </div>
+        </div>
+
+        <div  class="comments-container">
+          <hr style="width: 100%; margin: 0;border: 0.5px solid #ececec;"> 
+
+        </div >
+        <div  class="comment-container">
+          <hr style="width: 100%; margin: 0;border: 0.5px solid #ececec; margin-bottom: 10px;"> 
+
+          <div style="display: flex; flex-direction: row;align-items: center;margin-bottom: 10px;">
+            <i id="like-btn" @click="clickLike" class="fa fa-heart" style="font-size:30px; color: rgb(229, 229, 229); ">
+            </i>
+            <p style="color: rgb(0, 0, 0);margin-left: 8px; font-size: 15px;font-family: Roboto;">
+              {{ this.likes }} {{ this.likes <= 1 ? 'like' : 'likes' }}
+            </p>
+          </div>
+
+          <div style="display: flex;">
+            <v-text-field
+            v-model="comment"
+            variant="outlined"
+            label="Add comment"
+            single-line
+            :rules="[formRequired]"
+          ></v-text-field>
+          <v-btn class="blue-btn" style="height: 55px;background-color: #c9c9c9;"> <i class="fa fa-send"></i> </v-btn>
+          </div>
+          
+        </div >
+      
+      </v-col>
+    </v-row>
   </div>
-  
 </template>
 
 <script >
@@ -47,10 +62,6 @@ export default {
   components: {Navbar,VideoPlayer},
   data(){
     return{
-      // localStorage.setItem('type', 'views')
-      //   localStorage.setItem('filename', Filename)
-      //   localStorage.setItem('id', Id)
-
       prev: null,
       next: null,
       id: localStorage.getItem("id"),
@@ -58,7 +69,8 @@ export default {
       video: localStorage.getItem("filename"),
       caption: "",
       username: "",
-      // views: 0,
+      views: 0,
+      likes: 2,
       type: localStorage.getItem("type"),
       like: false,
       videoOptions: {
@@ -81,14 +93,6 @@ export default {
     
   },
   methods:{
-    onPlayerPlay({ event, player }) {
-      console.log(event.type);
-      player.setPlaying(true);
-    },
-    onPlayerPause({ event, player }) {
-      console.log(event.type);
-      player.setPlaying(false);
-    },
     async fetchData(){
       axios.get("http://localhost:8080/api/"+localStorage.getItem("type"),{
           params: {page: this.id,size: 1},
@@ -100,72 +104,19 @@ export default {
                 this.views = item.views;
                 this.username = item.username;
               });
-              this.fetchNext();
-              this.fetchPrev();
-            } else {  //handle only right click
-              this.id -=1;
+            } else {  
             }
           })
     }, 
-    async fetchPrev() {
-      if (this.id > 0){
-        axios.get("http://localhost:8080/api/"+localStorage.getItem("type"),{
-          params: {page: this.id-1,size: 1},
-        })
-          .then((res) => {
-            const prev = []
-            res.data.forEach(item => prev.push(item));
-            this.prev = prev;
-
-          })
-          
-      } 
-    },
-    async fetchNext() {
-        axios.get("http://localhost:8080/api/"+localStorage.getItem("type"),{
-          params: {page: this.id+1,size: 1},
-        })
-          .then((res) => {
-            const next = []
-            res.data.forEach(item => next.push(item));
-            
-            if (next != []){
-              this.next = next
-            }
-          })
-          
-    },
-    goToPreviousVideo() {
-      console.log("this.prev: ",this.prev)
-      if (this.prev.length == 1) {
-        console.log("this.prev: ",this.prev)
-        // localStorage.setItem('filename', this.prev.video)
-        // localStorage.setItem('id', this.id--)
-        // window.location.reload()
-
-      } 
-    },
-    goToNextVideo() {
-      console.log("this.next: ",this.next)
-      if (this.next.length == 1) {
-        console.log("this.next: ",this.next)
-        // localStorage.setItem('filename', this.next.video)
-        // localStorage.setItem('id', this.id++)
-        // window.location.reload()
-      } 
-    },
     clickLike() {
       var likeBtn = document.getElementById('like-btn');
       if (this.like) {
-        likeBtn.style.color = 'white';
+        likeBtn.style.color = 'rgb(229, 229, 229)';
         this.like = false;
       } else {
         likeBtn.style.color = '#EE3457';
         this.like = true;
       }
-    },
-    togglePlay(){
-      this.player.setPlaying(false);
     },
   },
   mounted(){
@@ -190,86 +141,28 @@ export default {
 
 <style scoped>
 @import '@/styles/btn-style.css';
+
 .toktik-page {
-  margin: 0pc 2pc 0pc 2pc;
+  /* margin: 0.2pc; */
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  height: 95vh;
-  /* background-color: black; */
 }
-.navigation-buttons{
-  z-index: 1;
-  display: flex;
-  position: absolute;
-  justify-content: space-between; /* Add this line to position icons at the ends */
-  width: 70vh;
-  color: #000000;
-  font-size:36px
-}
-.fa {
-  font-size: 24px; /* Adjust the font size as needed */
-  cursor: pointer;
-}
-.vid-container{
+.left-side{
   height: 100%;
-  width: 24.5pc;
+  width: 100vw;
   place-items: center;
   overflow: hidden;
-  background: rgb(0, 0, 0);
+  background: rgb(255, 255, 255);
   position: relative;
-  
-}
-.vid{
-  max-width: 100%;
-  max-height: 100%;
-  width: 100%;
-  height: auto;
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-}
-.vid-container::before {
-  position: absolute;
-  width: 100%;
-  height: 30%;
-  bottom: 0;
-  left: 0;
-  background: linear-gradient(to top, rgba(0, 0, 0, 0.15), rgba(0, 0, 0, 0)); /* Fade from black to transparent */
-  z-index: 2;
-  pointer-events: none;
-}
-.element-boxes{
   display: flex;
-  justify-content: space-between;
-  position: absolute;
-  left: 1pc;
-  right: 0.4pc;
-  bottom: 0pc;
-}
-.caption-box{
-  position: relative;
-  z-index: 3;
-  width: 75%;
-  overflow: hidden;
-  bottom: 1pc;
-}
-.caption-box:nth-child(1){
-  pointer-events: none;
-}
-.caption-box:nth-child(2){
-  width: 20%;
-  height: 20%;
-  text-align: right;
-  display: flex;
-  flex-direction: column;
-  top: -120px;
+  justify-content: center;
+  align-items: center;
 }
 .line {
-  font-size: 14px;
-  color: white;
+  font-size: 15px;
+  color: rgb(0, 0, 0);
   font-weight: 500;
   white-space: nowrap;
   overflow: scroll;
@@ -280,18 +173,59 @@ export default {
 .line::-webkit-scrollbar {
   width: 0; /* Hide scrollbar in Webkit browsers */
 }
-.video-js{
-    display: inline-block;
-    vertical-align: top;
-    box-sizing: border-box;
-    color: #fff;
-    background-color: #000;
-    padding: 0;
-    font-size: 10px;
-    line-height: 1;
-    font-weight: 400;
-    font-style: normal;
-    font-family: Arial,Helvetica,sans-serif;
-    word-break: initial;
+
+.vid-container{
+  height: 100vh;
+  /* width: 24.5pc; */
+  place-items: center;
+  overflow: hidden;
+  background: rgb(255, 255, 255);
+  position: relative;
 }
+.right-side{
+  padding: 3pc;
+  flex-direction: column;
+  display: flex;
+  position: relative;
+}
+.user-container{
+  padding: 14px;
+
+}
+.circle {
+  width: 50px;
+  height: 50px;
+  background-color: #000000;
+  border-radius: 100pc;
+}
+.initial{
+  color: white;
+  font-weight: bolder;
+  font-size: 2pc;
+  text-align: center;
+}
+.comments-container{
+  /* box-shadow: inset 0px 0px 4px rgba(0, 0, 0, 0.15); */
+  height: 77.1vh;
+  overflow-x: auto;
+  height: 100%;
+  overflow-y: auto;
+  position: relative;
+
+}
+.comment-container{
+  width: 100%;
+  height: 9pc;
+  padding: 16px 7px 0 16px;
+  justify-content: center;
+}
+.sub-user-container{
+  width: 100%;
+  display: flex;
+  align-items: center;
+  flex-direction: row;
+  justify-content: flex-start;
+}
+
+
 </style>
