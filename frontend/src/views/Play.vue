@@ -41,8 +41,20 @@
         </div >
         <div  class="add-comment-container">
           <div style="display: flex; flex-direction: row;align-items: center;margin-bottom: 10px;">
-            <i id="like-btn" @click="clickLike" class="fa fa-heart" style="font-size:30px; color: rgb(229, 229, 229); ">
-            </i>
+            <i
+              id="like-btn"
+              @click="clickLike"
+              class="fa fa-heart"
+              style="cursor: pointer; font-size: 30px; color:rgb(229, 229, 229);"
+              v-if="this.is_like==false"
+            ></i>   
+            <i
+              id="like-btn"
+              @click="clickLike"
+              class="fa fa-heart"
+              style="cursor: pointer; font-size: 30px; color:#EE3457;"
+              v-if="this.is_like"
+            ></i>          
             <p style="color: rgb(0, 0, 0);margin-left: 8px; font-size: 15px;font-family: Roboto;">
               {{ this.like_count }} {{ this.like_count <= 1 ? 'like' : 'likes' }}
             </p>
@@ -54,9 +66,8 @@
             variant="outlined"
             label="Add comment"
             single-line
-            :rules="[formRequired]"
           ></v-text-field>
-          <v-btn class="blue-btn" style="height: 55px;background-color: #c9c9c9;"> <i class="fa fa-send"></i> </v-btn>
+          <v-btn v-if="this.comment" @click="addComment" class="blue-btn" style="height: 55px;background-color: #000000;" > <i class="fa fa-send"></i> </v-btn>
           </div>
           
         </div >
@@ -81,18 +92,12 @@ export default {
       video: localStorage.getItem("filename"),
       caption: "",
       username: "",
+      comment: null,
       views: 0,
       like_count: 0,
       type: localStorage.getItem("type"),
       is_like: false,
-      comments: {0:{'username':'mimi','comment':'This is so cute'},
-      1:{'username':'sharjah','comment':'I luv it'},
-      2:{'username':'asparagus','comment':'This is so cute This is so cute This is so cute This is so cute This is so cute This is so cute'},
-      3:{'username':'asparagus','comment':'This is so cute This is so cute This is so cute This is so cute This is so cute This is so cute'},
-      4:{'username':'asparagus','comment':'This is so cute This is so cute This is so cute This is so cute This is so This is so cute This is so cute This is so cute This is so cute This is so cute This is so cuThis is so cute This is so cute This is so cute This is so cute This is so cute This is so cuThis is so cute This is so cute This is so cute This is so cute This is so cute This is so cuThis is so cute This is so cute This is so cute This is so cute This is so cute This is so cuThis is so cute This is so cute This is so cute This is so cute This is so cute This is so cuThis is so cute This is so cute This is so cute This is so cute This is so cute This is so cuThis is so cute This is so cute This is so cute This is so cute This is so cute This is so cuThis is so cute This is so cute This is so cute This is so cute This is so cute This is so cuThis is so cute This is so cute This is so cute This is so cute This is so cute This is so cuThis is so cute This is so cute This is so cute This is so cute This is so cute This is so cucute This is so cute'}
-
-    },
-
+      comments: [],
       comment_count: 0,
       videoOptions: {
         autoplay: true,
@@ -116,42 +121,49 @@ export default {
   methods:{
     async fetchData(){
       // Long id, String video, String preview, String caption, Integer views, String username,  Integer like_count, Integer comment_count, Boolean is_like, LocalDateTime created
-      axios.get("http://localhost:8080/api/"+localStorage.getItem("type"),{
-          params: {page: this.id,size: 1},
-        })
-          .then((res) => {
-            if (res.data != null) {
-              res.data.forEach(item => {
-                this.caption = item.caption;
-                this.views = item.views;
-                this.username = item.username;
-                this.like_count = item.like_count;
-                this.is_like = item.is_like;
-                this.comment_count = item.comment_count;
-
-              });
-            } else {  
-            }
+      axios.get("http://localhost:8080/api/video/detail/"+localStorage.getItem("filename"))
+            .then((res) => {
+                this.caption = res.data.caption;
+                this.views = res.data.views;
+                this.username = res.data.username;
+                this.like_count = res.data.like_count;
+                this.is_like = res.data.is_like;
+                this.comment_count = res.data.comment_count;
+                this.comments = res.data.comments;
           })
     }, 
     clickLike() {
       var likeBtn = document.getElementById('like-btn');
       if (this.is_like) {
-        likeBtn.style.color = 'rgb(229, 229, 229)';
         this.is_like = false;
-      } else {
-        likeBtn.style.color = '#EE3457';
         axios.get("http://localhost:8080/api/video/like/"+this.video)
         .then((res)=>{
-          this.is_like = res.data.success;
+          this.is_like = false;
+          likeBtn.style.color = 'rgb(229, 229, 229)';
           console.log(res.data.message)
         })
-        this.is_like = true;
+      } else {
+        axios.get("http://localhost:8080/api/video/like/"+this.video)
+        .then((res)=>{
+          this.is_like = true;
+          likeBtn.style.color = 'EE3457';
+          console.log(res.data.message)
+        })
       }
     },
+    addComment(){
+      const form = new FormData();
+      form.append('comment',this.comment)
+      form.append('video',this.video)
+      axios.post("http://localhost:8080/api/video/comment", form)
+      this.comment = null;
+    },
   },
-  mounted(){
-
+  created(){
+    setInterval(() => {
+      this.fetchData();
+	  }, 100)
+    
   },
   beforeMount() {
     let jwtToken = localStorage.getItem('token')
