@@ -15,22 +15,36 @@
               <div class="circle">
               <p class="initial">{{ this.username[0] || 'U' }}</p>
             </div>
-            <p class="line" style="font-weight:600;position: relative;padding: 1pc 1pc 0 1pc; " >@{{ this.username || 'Unknown User' }}</p>
+            <div>
+              <p class="line" style="font-weight:600;position: relative;padding: 0 0 0 1pc; " >@{{ this.username || 'Unknown User' }}</p>
+              <p class="line" style="font-weight:400;position: relative;padding: 0 0 0 1pc; " >{{ this.caption }} </p>
+            </div>
           </div>
+          <!-- <hr style="width: 100%; margin: 0;border: 0.5px solid #ececec;position: relative;bottom: 0;">  -->
         </div>
 
         <div  class="comments-container">
-          <hr style="width: 100%; margin: 0;border: 0.5px solid #ececec;"> 
+          <v-col v-for="(comment,id) in comments" :key="id">
+            <div class="comment-container">
+              <div>
+                <div class="circle" style="width: 35px;min-width: 35px;height: 35px;min-height: 35px;background-color: #414141;">
+                  <p class="initial" style="font-size: 1.35pc;font-weight: 600;">{{ comment.username[0] || 'U' }}</p>
+                </div>
+              </div>
+              <div style="margin: 1px 0 0 9px; max-width: 100%;">
+                <p class="line" style="font-weight:600;font-size: 13px;" >@{{ comment.username }}</p>
+                <p class="line" style="font-weight:400;font-size: 13px;white-space: normal;" >{{ comment.comment }}</p>
+              </div>
+            </div>
 
+          </v-col>
         </div >
-        <div  class="comment-container">
-          <hr style="width: 100%; margin: 0;border: 0.5px solid #ececec; margin-bottom: 10px;"> 
-
+        <div  class="add-comment-container">
           <div style="display: flex; flex-direction: row;align-items: center;margin-bottom: 10px;">
             <i id="like-btn" @click="clickLike" class="fa fa-heart" style="font-size:30px; color: rgb(229, 229, 229); ">
             </i>
             <p style="color: rgb(0, 0, 0);margin-left: 8px; font-size: 15px;font-family: Roboto;">
-              {{ this.likes }} {{ this.likes <= 1 ? 'like' : 'likes' }}
+              {{ this.like_count }} {{ this.like_count <= 1 ? 'like' : 'likes' }}
             </p>
           </div>
 
@@ -62,17 +76,24 @@ export default {
   components: {Navbar,VideoPlayer},
   data(){
     return{
-      prev: null,
-      next: null,
       id: localStorage.getItem("id"),
       player: null,
       video: localStorage.getItem("filename"),
       caption: "",
       username: "",
       views: 0,
-      likes: 2,
+      like_count: 0,
       type: localStorage.getItem("type"),
-      like: false,
+      is_like: false,
+      comments: {0:{'username':'mimi','comment':'This is so cute'},
+      1:{'username':'sharjah','comment':'I luv it'},
+      2:{'username':'asparagus','comment':'This is so cute This is so cute This is so cute This is so cute This is so cute This is so cute'},
+      3:{'username':'asparagus','comment':'This is so cute This is so cute This is so cute This is so cute This is so cute This is so cute'},
+      4:{'username':'asparagus','comment':'This is so cute This is so cute This is so cute This is so cute This is so This is so cute This is so cute This is so cute This is so cute This is so cute This is so cuThis is so cute This is so cute This is so cute This is so cute This is so cute This is so cuThis is so cute This is so cute This is so cute This is so cute This is so cute This is so cuThis is so cute This is so cute This is so cute This is so cute This is so cute This is so cuThis is so cute This is so cute This is so cute This is so cute This is so cute This is so cuThis is so cute This is so cute This is so cute This is so cute This is so cute This is so cuThis is so cute This is so cute This is so cute This is so cute This is so cute This is so cuThis is so cute This is so cute This is so cute This is so cute This is so cute This is so cuThis is so cute This is so cute This is so cute This is so cute This is so cute This is so cuThis is so cute This is so cute This is so cute This is so cute This is so cute This is so cucute This is so cute'}
+
+    },
+
+      comment_count: 0,
       videoOptions: {
         autoplay: true,
         controls: true,
@@ -94,6 +115,7 @@ export default {
   },
   methods:{
     async fetchData(){
+      // Long id, String video, String preview, String caption, Integer views, String username,  Integer like_count, Integer comment_count, Boolean is_like, LocalDateTime created
       axios.get("http://localhost:8080/api/"+localStorage.getItem("type"),{
           params: {page: this.id,size: 1},
         })
@@ -103,6 +125,10 @@ export default {
                 this.caption = item.caption;
                 this.views = item.views;
                 this.username = item.username;
+                this.like_count = item.like_count;
+                this.is_like = item.is_like;
+                this.comment_count = item.comment_count;
+
               });
             } else {  
             }
@@ -110,12 +136,17 @@ export default {
     }, 
     clickLike() {
       var likeBtn = document.getElementById('like-btn');
-      if (this.like) {
+      if (this.is_like) {
         likeBtn.style.color = 'rgb(229, 229, 229)';
-        this.like = false;
+        this.is_like = false;
       } else {
         likeBtn.style.color = '#EE3457';
-        this.like = true;
+        axios.get("http://localhost:8080/api/video/like/"+this.video)
+        .then((res)=>{
+          this.is_like = res.data.success;
+          console.log(res.data.message)
+        })
+        this.is_like = true;
       }
     },
   },
@@ -165,9 +196,8 @@ export default {
   color: rgb(0, 0, 0);
   font-weight: 500;
   white-space: nowrap;
-  overflow: scroll;
   direction: ltr;
-  line-height: 1;
+  line-height: 1.5;
   pointer-events: auto;
 }
 .line::-webkit-scrollbar {
@@ -197,6 +227,8 @@ export default {
   height: 50px;
   background-color: #000000;
   border-radius: 100pc;
+  min-width: 50px;
+  min-height: 50px;
 }
 .initial{
   color: white;
@@ -205,15 +237,16 @@ export default {
   text-align: center;
 }
 .comments-container{
-  /* box-shadow: inset 0px 0px 4px rgba(0, 0, 0, 0.15); */
-  height: 77.1vh;
+  box-shadow: inset 0px 0px 4px rgba(0, 0, 0, 0.15);
+  margin: 0 1pc 0 1pc;
+  height: 70vh;
   overflow-x: auto;
-  height: 100%;
   overflow-y: auto;
   position: relative;
+  border-radius: 5px;
 
 }
-.comment-container{
+.add-comment-container{
   width: 100%;
   height: 9pc;
   padding: 16px 7px 0 16px;
@@ -225,7 +258,14 @@ export default {
   align-items: center;
   flex-direction: row;
   justify-content: flex-start;
+  overflow: scroll;
 }
 
+.comment-container{
+  width: 100%;
+  border-radius: 4px;
+  padding: 5px 0 5px 0;
+  display: flex;
+}
 
 </style>
