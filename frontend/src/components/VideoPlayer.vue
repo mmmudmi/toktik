@@ -101,5 +101,6 @@ export default {
 <style>
 .video-js {
     position:inherit;
+    background-color:rgb(255, 255, 255);
 }
 </style>

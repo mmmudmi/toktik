@@ -47,7 +47,7 @@
         </div>
       </v-form>
     </div>
-    <v-img src="src/images/toktik.png" class="background-image"></v-img>
+    <v-img src="https://scalable.ap-south-1.linodeobjects.com/toktik.png" class="background-image"></v-img>
   </div>
 </template>
 

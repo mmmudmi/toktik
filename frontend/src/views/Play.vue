@@ -1,8 +1,10 @@
 <template>
   <Navbar />
   <div class="toktik-page">
-    
-    <v-row no-gutters>
+    <div v-if="this.username==null">
+      <PageLoader />
+    </div>
+    <v-row no-gutters v-else>
       <v-col cols="5" class="left-side">
         <div class="vid-container">
           <video-player  ref="player" :options="videoOptions" ></video-player>
@@ -89,20 +91,20 @@ import axios from 'axios'
 import Navbar from '@/components/Navbar.vue'
 import { isJwtExpired } from 'jwt-check-expiration';
 import VideoPlayer from '@/components/VideoPlayer.vue';
+import PageLoader from '@/components/PageLoader.vue';
+
 
 export default {
-  components: {Navbar,VideoPlayer},
+  components: {Navbar,VideoPlayer,PageLoader},
   data(){
     return{
-      id: localStorage.getItem("id"),
       player: null,
-      video: localStorage.getItem("filename"),
+      video: this.$route.params.video,
       caption: "",
-      username: "",
+      username: null,
       comment: null,
       views: 0,
       like_count: 0,
-      type: localStorage.getItem("type"),
       is_like: false,
       comments: [],
       comment_count: 0,
@@ -112,7 +114,7 @@ export default {
         loop: true,
         sources: [
           {
-            src: "http://localhost:8080/api/video/playlist/"+localStorage.getItem("filename"),
+            src: "http://localhost:8080/api/video/playlist/"+this.$route.params.video,
             type: 'application/x-mpegURL'
           }
         ]
@@ -128,7 +130,7 @@ export default {
   methods:{
     async fetchData(){
       // Long id, String video, String preview, String caption, Integer views, String username,  Integer like_count, Integer comment_count, Boolean is_like, LocalDateTime created
-      axios.get("http://localhost:8080/api/video/detail/"+localStorage.getItem("filename"))
+      axios.get("http://localhost:8080/api/video/detail/"+this.$route.params.video)
             .then((res) => {
                 this.caption = res.data.caption;
                 this.views = res.data.views;
@@ -143,14 +145,14 @@ export default {
       var likeBtn = document.getElementById('like-btn');
       if (this.is_like) {
         this.is_like = false;
-        axios.get("http://localhost:8080/api/video/like/"+this.video)
+        axios.get("http://localhost:8080/api/video/like/"+this.$route.params.video)
         .then((res)=>{
           this.is_like = false;
           likeBtn.style.color = 'rgb(229, 229, 229)';
           console.log(res.data.message)
         })
       } else {
-        axios.get("http://localhost:8080/api/video/like/"+this.video)
+        axios.get("http://localhost:8080/api/video/like/"+this.$route.params.video)
         .then((res)=>{
           this.is_like = true;
           likeBtn.style.color = 'EE3457';
