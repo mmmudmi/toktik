@@ -24,7 +24,15 @@
         </div>
 
         <div  class="comments-container">
-          <v-col v-for="(comment,id) in comments" :key="id">
+          <p v-if="comments.length === 0" style="display: flex;
+            align-items: center; 
+            justify-content: center; 
+            height: 100%;
+            color: rgb(211, 211, 211);"
+          >No comments</p>
+
+          <div v-if="comments.length !== 0">
+          <v-col v-for="(comment,id) in this.sortedComments" :key="id">
             <div class="comment-container">
               <div>
                 <div class="circle" style="width: 35px;min-width: 35px;height: 35px;min-height: 35px;background-color: #414141;">
@@ -36,8 +44,8 @@
                 <p class="line" style="font-weight:400;font-size: 13px;white-space: normal;" >{{ comment.comment }}</p>
               </div>
             </div>
-
           </v-col>
+          </div>
         </div >
         <div  class="add-comment-container">
           <div style="display: flex; flex-direction: row;align-items: center;margin-bottom: 10px;">
@@ -71,7 +79,6 @@
           </div>
           
         </div >
-      
       </v-col>
     </v-row>
   </div>
@@ -161,9 +168,17 @@ export default {
   },
   created(){
     setInterval(() => {
+      console.log(this.comments);
       this.fetchData();
 	  }, 100)
-    
+  
+  },
+  computed: {
+    sortedComments() {
+    return this.comments.slice().sort((a, b) => {
+      return new Date(a.created) - new Date(b.created);
+    });
+  },
   },
   beforeMount() {
     let jwtToken = localStorage.getItem('token')
