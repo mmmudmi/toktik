@@ -1,9 +1,12 @@
 <template>
   <Navbar />
+  <div v-if="this.is_loaded === false">
+      <PageLoader />
+  </div>
   <div style="margin: 2pc;">
     <v-row>
       <v-col v-for="(video,id) in list" :key="id" cols="12" sm="6" md="3">
-        <v-card class="card-container" @click="redirect(video.video,id)">
+        <v-card class="card-container" @click="redirect(video.video)">
           <div class="vid" >
             <img :src="video.preview" style="width: 100%;height: 100%;" class="preview" >
             <v-row style="position: relative; left: 1.5pc; bottom: 1.5pc;z-index: 2;">
@@ -28,24 +31,23 @@
   import Navbar from '@/components/Navbar.vue'
   import axios from 'axios';
   import { isJwtExpired } from 'jwt-check-expiration';
+  import PageLoader from '@/components/PageLoader.vue';
+
   export default {
     computed: {
     },
-    components: {Navbar},
+    components: {Navbar,PageLoader},
     data(){
       return{
         list: [],
         page:-1,
-        size:12,
+        size:8,
+        is_loaded:false,
       }
     },
     methods:{
-      redirect(Filename,Id){
-        // type = "views" "latest"     path: '/play:filename:type:id:',
-        localStorage.setItem('type', 'video/views')
-        localStorage.setItem('id', Id)
-        localStorage.setItem('filename', Filename)
-        this.$router.push({ name: 'play'})
+      redirect(Filename){
+        this.$router.push({ name: 'play', params: {"video": Filename}})
       },
       fetchData(){
         this.page += 1;
@@ -55,13 +57,19 @@
           .then((res) => {
             if (res.data.length >= 1) {
               res.data.forEach(item => this.list.push(item));
+              this.is_loaded = true;
             } else {
               this.page -=1;
             }
-            console.log("fetch: " + this.list);
           })
       }, 
     },
+    created(){
+    setInterval(() => {
+      // console.log("jo");
+      this.fetchData();
+	  }, 90000000)
+  },
     mounted() {
       window.addEventListener("scroll",() => {
         let scrollTop=document.documentElement.scrollTop;
