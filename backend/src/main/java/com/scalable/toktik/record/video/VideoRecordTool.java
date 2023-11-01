@@ -52,7 +52,7 @@ public class VideoRecordTool {
         Integer likeCount = likeService.likeCount(video);
         Integer dislikeCount = dislikeService.dislikeCount(video);
         Integer commentCount = commentService.commentCount(video);
-        return new VideoUserSimpleRecord(video.getId(), video.getVideo(), video.getPreview(), video.getCaption(),
+        return new VideoUserSimpleRecord(video.getId(), video.getVideo(),presignTool(video.getPreview()), video.getCaption(),
                 video.getViews(), video.getUser().getUsername(), likeCount, dislikeCount, commentCount, video.getProcess(), video.getCreated());
     }
 
