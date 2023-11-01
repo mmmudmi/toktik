@@ -1,10 +1,12 @@
 <template>
   <Navbar />
+  <div v-if="this.is_loaded === false">
+      <PageLoader />
+  </div>
   <div style="margin: 2pc">
     <div id="upload-progress-container" style="display:none">
       <progress id="upload-progress" value="0" max="100"></progress>
     </div>
-
     <v-row class="container">
       <div class="circle">
         <p class="initial">{{ this.username[0] || 'U' }}</p>
@@ -14,11 +16,15 @@
     </v-row>
     <v-row>
       <v-col v-for="(video,id) in list" :key="id" cols="12" sm="6" md="3">
-        <v-btn @click="deleteVideo(video.video)" id="remove" density="compact" icon="mdi-close" style="color: #fff; background-color:transparent" ></v-btn>
-        <v-card class="card-container" @click="redirect(video.video,id)">
+        <v-btn v-if="video.is_process" @click="deleteVideo(video.video)" id="remove" density="compact" icon="mdi-close" style="color: #fff; background-color:transparent" ></v-btn>
+        <v-card class="card-container" @click="redirect(video.video)">
           <div class="vid" >
               <img :src="video.preview" style="width: 100%;height: 100%;" class="preview" v-if="video.is_process">
-              <p v-else style="color: #fff;text-align: center;top: 1pc;"> Uploading...</p>
+              <p v-else class="centered-container"> 
+                <span class="loader"></span> 
+                <br >
+                Prcessing...
+              </p>
             <v-row style="position: relative; left: 1.5pc; bottom: 1.5pc;z-index: 2;" v-if="video.is_process">
               <i class="fa fa-play" style="color: white; margin-right: 10px;"></i>
               <p class="txt-card" style="font-size: 15px; position: absolute; left: 18px; bottom: -3px">
@@ -28,7 +34,6 @@
           </div>
           <div class="description" style="z-index: 2;">
             <div class="line">{{ video.caption }}</div>
-            <div class="line">@{{ video.username }}</div>
           </div>
         </v-card>
       </v-col>
@@ -41,56 +46,70 @@
 import axios from 'axios';
 import { isJwtExpired } from 'jwt-check-expiration';
 import Navbar from '@/components/Navbar.vue'
+import PageLoader from '@/components/PageLoader.vue';
+
 
 export default {
-  components: {Navbar},
+  components: {Navbar,PageLoader},
   data(){
     return{
       username: localStorage.getItem('username'),
       list: [],
       page:-1,
       size:12,  
+      is_loaded: false,
     }
   },
   methods:{
-    redirect(Filename,Id){
-        // type = "views" "u/profile"     path: '/play:filename:type:id:',
-        localStorage.setItem('type', 'u/profile')
-        localStorage.setItem('id', Id)
-        localStorage.setItem('filename', Filename)
-        this.$router.push({ name: 'play'})
-      },
+    redirect(Filename){
+      this.$router.push({ name: 'play', params: {"video": Filename}})
+    },
     deleteVideo(filename){
       axios.get("http://localhost:8080/api/video/delete/"+filename)
         .then((res) => {
           alert(res.data.message)
-          this.getList();
         })
     },
-    getList() {
-      // VideoSimpleRecord(String video, String preview, String caption, Integer views, String username) 
-
+    reset(){
+      let temp = [];
+      this.size =  this.list.length+1;
       axios.get("http://localhost:8080/api/u/profile",{
-        params: {page: this.page,size:12},
+        params: {page: 0, size: this.size},
       })
-        .then((res) => {
-          this.list = res.data
-          console.log(this.list);
-        })
-    },
-    fetchData(){
-        this.page += 1;
-        axios.get("http://localhost:8080/api/u/profile",{
-          params: {page: this.page,size: this.size},
-        })
           .then((res) => {
             if (res.data.length >= 1) {
-              res.data.forEach(item => this.list.push(item));
+              res.data.forEach(item => {
+                temp.push(item)
+              });              
+            }
+            this.list = temp;
+          })
+    },
+    fetchData(){
+      this.page += 1;
+      axios.get("http://localhost:8080/api/u/profile",{
+        params: {page: this.page, size: this.size},
+      })
+          .then((res) => {
+            if (res.data.length >= 1) {
+              res.data.forEach(item => {
+                this.list.push(item)
+              });
+              
             } else {
               this.page -=1;
             }
+            this.is_loaded = true;
           })
       }, 
+  },
+  created(){
+    setInterval(() => {
+      // console.log("fetch myvid");
+      this.reset();
+      // this.page += 1
+      // this.fetchData();
+	  }, 500)
   },
   mounted() {
     window.addEventListener("scroll",() => {
@@ -173,7 +192,7 @@ export default {
   white-space: nowrap;
   overflow: scroll;
   direction: ltr;
-  line-height: 1;
+  line-height: 1.5;
   pointer-events: auto;
 }
 .line::-webkit-scrollbar {
@@ -184,9 +203,9 @@ export default {
   position: absolute;
   width: 100%;
   height: 25%;
-  bottom: 4.75pc;
+  bottom: 3.3pc;
   left: 0;
-  background: linear-gradient(to top, rgba(0, 0, 0, 0.12), rgba(0, 0, 0, 0)); /* Fade from black to transparent */
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0)); /* Fade from black to transparent */
   z-index: 1;
   pointer-events: none;
 }
@@ -201,5 +220,34 @@ export default {
   width: 100%;
   object-fit: cover;
 }
+.centered-container{
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  color: #fff;
+  height: 100%; 
+}
+.loader {
+    width: 48px;
+    height: 48px;
+    border: 5px solid #ffffff;
+    /* border: 5px solid #6DCBD3; */
+    border-bottom-color: transparent;
+    border-radius: 50%;
+    display: inline-block;
+    box-sizing: border-box;
+    animation: rotation 1s linear infinite;
+    }
+
+    @keyframes rotation {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
+    } 
 
 </style>

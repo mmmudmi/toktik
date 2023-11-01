@@ -21,6 +21,7 @@
           :rules="[formRequired]"
           :append-icon="eye ? 'mdi-eye' : 'mdi-eye-off'"
           @click:append="() => (eye = !eye)"
+          @keyup.enter="login"
           :type="eye ? 'password' : 'text'"
         ></v-text-field>
         <div style="display: flex; justify-content: center; align-items: center;">

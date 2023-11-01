@@ -49,6 +49,21 @@
       redirect(Filename){
         this.$router.push({ name: 'play', params: {"video": Filename}})
       },
+      reset(){
+      let temp = [];
+      this.size =  this.list.length+1;
+      axios.get("http://localhost:8080/api/video/views",{
+        params: {page: 0, size: this.size},
+      })
+          .then((res) => {
+            if (res.data.length >= 1) {
+              res.data.forEach(item => {
+                temp.push(item)
+              });              
+            }
+            this.list = temp;
+          })
+    },
       fetchData(){
         this.page += 1;
         axios.get("http://localhost:8080/api/video/views",{
@@ -56,19 +71,20 @@
         })
           .then((res) => {
             if (res.data.length >= 1) {
-              res.data.forEach(item => this.list.push(item));
-              this.is_loaded = true;
+              res.data.forEach(item => this.list.push(item))
             } else {
               this.page -=1;
             }
+            this.is_loaded = true;
           })
       }, 
     },
     created(){
     setInterval(() => {
-      // console.log("jo");
-      this.fetchData();
-	  }, 90000000)
+      this.reset();
+      // console.log("fetch");
+      // this.fetchData();
+	  }, 90000)
   },
     mounted() {
       window.addEventListener("scroll",() => {
@@ -121,7 +137,7 @@
   white-space: nowrap;
   overflow: scroll;
   direction: ltr;
-  line-height: 1;
+  line-height: 1.5;
   pointer-events: auto;
 }
 .line::-webkit-scrollbar {
@@ -138,7 +154,7 @@
   position: absolute;
   width: 100%;
   height: 25%;
-  bottom: 4.75pc;
+  bottom: 5.6pc;
   left: 0;
   background: linear-gradient(to top, rgba(0, 0, 0, 0.12), rgba(0, 0, 0, 0)); /* Fade from black to transparent */
   z-index: 1;
