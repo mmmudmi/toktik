@@ -72,7 +72,7 @@ export default {
       const form = new FormData();
       form.append('username', this.username)
       form.append('password', this.password)
-      axios.post("/api/auth/login", form)
+      axios.post("http://127.0.0.1:8080/api/auth/login", form)
         .then((res) => {
           let data = res.data
           if (data.success) {
@@ -94,7 +94,7 @@ export default {
   beforeMount() {
     localStorage.removeItem('token')
     localStorage.removeItem('username')
-    axios.get("/api/auth/logout")
+    axios.get("http://127.0.0.1:8080/api/auth/logout")
     axios.defaults.headers.common['Authorization'] = null;
   }
 };

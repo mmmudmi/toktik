@@ -16,16 +16,16 @@
     </v-row>
     <v-row>
       <v-col v-for="(video,id) in list" :key="id" cols="12" sm="6" md="3">
-        <v-btn v-if="video.is_process" @click="deleteVideo(video.video)" id="remove" density="compact" icon="mdi-close" style="color: #fff; background-color:transparent" ></v-btn>
+        <v-btn v-if="video.is_process === 1" @click="deleteVideo(video.video)" id="remove" density="compact" icon="mdi-close" style="color: #fff; background-color:transparent" ></v-btn>
         <v-card class="card-container" @click="redirect(video.video)">
           <div class="vid" >
-              <img :src="video.preview" style="width: 100%;height: 100%;" class="preview" v-if="video.is_process">
+              <img :src="video.preview" style="width: 100%;height: 100%;" class="preview" v-if="video.is_process===1">
               <p v-else class="centered-container"> 
                 <span class="loader"></span> 
                 <br >
                 Prcessing...
               </p>
-            <v-row style="position: relative; left: 1.5pc; bottom: 1.5pc;z-index: 2;" v-if="video.is_process">
+            <v-row style="position: relative; left: 1.5pc; bottom: 1.5pc;z-index: 2;" v-if="video.is_process===1">
               <i class="fa fa-play" style="color: white; margin-right: 10px;"></i>
               <p class="txt-card" style="font-size: 15px; position: absolute; left: 18px; bottom: -3px">
                  {{ video.views }} {{ video.views <= 1 ? 'view' : 'views' }}
@@ -66,7 +66,7 @@ export default {
       this.$router.push({ name: 'play', params: {"video": Filename}})
     },
     deleteVideo(filename){
-      axios.get("/api/video/delete/"+filename)
+      axios.get("http://127.0.0.1:8080/api/video/delete/"+filename)
         .then((res) => {
           alert(res.data.message)
         })
@@ -74,21 +74,25 @@ export default {
     reset(){
       let temp = [];
       this.size =  this.list.length+1;
-      axios.get("/api/u/profile",{
+      axios.get("http://127.0.0.1:8080/api/u/profile",{
         params: {page: 0, size: this.size},
       })
           .then((res) => {
             if (res.data.length >= 1) {
               res.data.forEach(item => {
-                temp.push(item)
-              });              
+                  if(item.is_process==-1){
+                    alert("fail to upload the video")
+                  } else {
+                    temp.push(item)
+                  }
+              });          
             }
             this.list = temp;
           })
     },
     fetchData(){
       this.page += 1;
-      axios.get("/api/u/profile",{
+      axios.get("http://127.0.0.1:8080/api/u/profile",{
         params: {page: this.page, size: this.size},
       })
           .then((res) => {
@@ -106,7 +110,7 @@ export default {
   },
   created(){
     setInterval(() => {
-      // console.log("fetch myvid");
+      console.log("fetch myvid");
       this.reset();
       // this.page += 1
       // this.fetchData();
