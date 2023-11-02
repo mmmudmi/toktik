@@ -64,10 +64,12 @@
               class="fa fa-heart"
               style="cursor: pointer; font-size: 30px; color:#EE3457;"
               v-if="this.is_like"
-            ></i>          
+            ></i>      
             <p style="color: rgb(0, 0, 0);margin-left: 8px; font-size: 15px;font-family: Roboto;">
               {{ this.like_count }} {{ this.like_count <= 1 ? 'like' : 'likes' }}
             </p>
+            <!-- <span class="left"></span> 
+            <span class="right"></span>  -->
           </div>
 
           <div style="display: flex;">
@@ -95,6 +97,7 @@ import PageLoader from '@/components/PageLoader.vue';
 
 
 export default {
+  name: "Watch",
   components: {Navbar,VideoPlayer,PageLoader},
   data(){
     return{
@@ -114,7 +117,7 @@ export default {
         loop: true,
         sources: [
           {
-            src: "http://localhost:8080/api/video/playlist/"+this.$route.params.video,
+            src: "/api/video/playlist/"+this.$route.params.video,
             type: 'application/x-mpegURL'
           }
         ]
@@ -130,7 +133,7 @@ export default {
   methods:{
     async fetchData(){
       // Long id, String video, String preview, String caption, Integer views, String username,  Integer like_count, Integer comment_count, Boolean is_like, LocalDateTime created
-      axios.get("http://localhost:8080/api/video/detail/"+this.$route.params.video)
+      axios.get("/api/video/detail/"+this.$route.params.video)
             .then((res) => {
                 this.caption = res.data.caption;
                 this.views = res.data.views;
@@ -145,14 +148,14 @@ export default {
       var likeBtn = document.getElementById('like-btn');
       if (this.is_like) {
         this.is_like = false;
-        axios.get("http://localhost:8080/api/video/like/"+this.$route.params.video)
+        axios.get("/api/video/like/"+this.$route.params.video)
         .then((res)=>{
           this.is_like = false;
           likeBtn.style.color = 'rgb(229, 229, 229)';
           console.log(res.data.message)
         })
       } else {
-        axios.get("http://localhost:8080/api/video/like/"+this.$route.params.video)
+        axios.get("/api/video/like/"+this.$route.params.video)
         .then((res)=>{
           this.is_like = true;
           likeBtn.style.color = 'EE3457';
@@ -164,7 +167,7 @@ export default {
       const form = new FormData();
       form.append('comment',this.comment)
       form.append('video',this.video)
-      axios.post("http://localhost:8080/api/video/comment", form)
+      axios.post("/api/video/comment", form)
       this.comment = null;
     },
   },
@@ -296,5 +299,101 @@ export default {
   padding: 5px 0 5px 0;
   display: flex;
 }
+.previous {
+  background-color: #f1f1f1;
+  color: black;
+}
+
+.next {
+  background-color: #f1f1f1;
+  color: black;
+}
+
+.right{
+  cursor: pointer;
+  position:relative;
+  display:block;
+  margin: 100px 0 0 100px;
+  width:35px;
+  height: 35px;
+  border: solid 3px #999;
+  border-radius: 100%;
+  z-index: 1;
+  transition: all .2s linear;
+  &:before, &:after{
+    content:"";
+    position: absolute;
+    width:35%;
+    height: 10%;
+    top:41%;
+    left:55%;
+    background: #999;
+    z-index: 2;
+    transform: translate(-50%, -50%) rotate(45deg);
+    transition: all .2s linear;
+  }
+  &:after{
+    z-index: 3;
+    top:59%;
+    left:55%;
+    transform: translate(-50%, -50%) rotate(-45deg);
+  }
+  &:hover{
+    border: solid 4px #777;
+    &:after, &:before{
+      background: #777;
+    }
+  }
+  &:active{
+    border: solid 5px #111;
+    &:after, &:before{
+      background: #111;
+    }
+  }
+}
+
+.left{
+  cursor: pointer;
+  position:relative;
+  display:block;
+  margin: 100px 0 0 100px;
+  width:35px;
+  height: 35px;
+  border: solid 3px #999;
+  border-radius: 100%;
+  z-index: 1;
+  transition: all .2s linear;
+  &:before, &:after{
+    content:"";
+    position: absolute;
+    width:35%;
+    height: 10%;
+    top:41%;
+    left:48%;
+    background: #999;
+    z-index: 2;
+    transform: translate(-50%, -50%) rotate(135deg);
+    transition: all .2s linear;
+  }
+  &:after{
+    z-index: 3;
+    top:59%;
+    left:48%;
+    transform: translate(-50%, -50%) rotate(-135deg);
+  }
+  &:hover{
+    border: solid 4px #777;
+    &:after, &:before{
+      background: #777;
+    }
+  }
+  &:active{
+    border: solid 5px #111;
+    &:after, &:before{
+      background: #111;
+    }
+  }
+}
+
 
 </style>

@@ -13,8 +13,8 @@
 
 <script >
 import axios from 'axios'
-import { isJwtExpired } from 'jwt-check-expiration';
 export default {
+  name: "Welcome",
   data(){
     return{
     }
@@ -28,7 +28,7 @@ export default {
   beforeMount() {
     localStorage.removeItem('token')
     localStorage.removeItem('username')
-    axios.get("http://localhost:8080/api/auth/logout")
+    axios.get("/api/auth/logout")
     axios.defaults.headers.common['Authorization'] = null;
   }
 }

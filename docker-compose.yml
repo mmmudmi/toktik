@@ -29,9 +29,25 @@ services:
     networks:
       - ums-back-office
 
-  worker:
-    image: worker
-    build: ./redis-queue/worker
+  preview_worker:
+    image: preview_worker
+    build:
+      context: ./redis-queue/worker
+      dockerfile: ./Preview/Dockerfile
+    networks:
+      - ums-back-office
+  convertor_worker:
+    image: convertor_worker
+    build:
+      context: ./redis-queue/worker
+      dockerfile: ./Convertor/Dockerfile
+    networks:
+      - ums-back-office
+  chunk_worker:
+    image: chunk_worker
+    build:
+      context: ./redis-queue/worker
+      dockerfile: ./Chunk/Dockerfile
     networks:
       - ums-back-office
  

@@ -84,6 +84,7 @@ import axios from 'axios';
 import { isJwtExpired } from 'jwt-check-expiration';
 
 export default {
+  name: "Register",
   data() {
     return {
       username: null,
@@ -102,7 +103,7 @@ export default {
       form.append('email', this.email)
       form.append('password1', this.password1)
       form.append('password2', this.password2)
-      axios.post("http://localhost:8080/api/auth/signup", form)
+      axios.post("/api/auth/signup", form)
         .then((res) => {
           let data = res.data
           if (data.code == 0) {
@@ -126,7 +127,7 @@ export default {
   beforeMount() {
     localStorage.removeItem('token')
     localStorage.removeItem('username')
-    axios.get("http://localhost:8080/api/auth/logout")
+    axios.get("/api/auth/logout")
     axios.defaults.headers.common['Authorization'] = null;
   },
 };

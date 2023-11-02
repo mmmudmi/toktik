@@ -50,6 +50,7 @@ import PageLoader from '@/components/PageLoader.vue';
 
 
 export default {
+  name: "My videos",
   components: {Navbar,PageLoader},
   data(){
     return{
@@ -65,7 +66,7 @@ export default {
       this.$router.push({ name: 'play', params: {"video": Filename}})
     },
     deleteVideo(filename){
-      axios.get("http://localhost:8080/api/video/delete/"+filename)
+      axios.get("/api/video/delete/"+filename)
         .then((res) => {
           alert(res.data.message)
         })
@@ -73,7 +74,7 @@ export default {
     reset(){
       let temp = [];
       this.size =  this.list.length+1;
-      axios.get("http://localhost:8080/api/u/profile",{
+      axios.get("/api/u/profile",{
         params: {page: 0, size: this.size},
       })
           .then((res) => {
@@ -87,7 +88,7 @@ export default {
     },
     fetchData(){
       this.page += 1;
-      axios.get("http://localhost:8080/api/u/profile",{
+      axios.get("/api/u/profile",{
         params: {page: this.page, size: this.size},
       })
           .then((res) => {

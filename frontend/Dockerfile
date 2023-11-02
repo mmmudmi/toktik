@@ -4,13 +4,11 @@ WORKDIR /app
 
 COPY /package.json /yarn.lock ./
 COPY ./ ./
-RUN npm install axios
-RUN npm install jwt-check-expiration
-
-# RUN yarn install
-# RUN yarn build
-RUN npm install
-RUN npm run build
+RUN yarn add axios
+RUN yarn add jwt-check-expiration
+RUN yarn add i video.js
+RUN yarn install
+RUN yarn build
 
 FROM nginx:1.21-alpine
 COPY --from=builder /app/dist /usr/share/nginx/html/

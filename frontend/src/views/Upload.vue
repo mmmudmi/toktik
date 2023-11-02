@@ -68,6 +68,7 @@ import Navbar from '@/components/Navbar.vue'
 import { isJwtExpired } from 'jwt-check-expiration';
 
 export default {
+  name: "Upload",
   components: {Navbar},
   data(){
     return{
@@ -86,7 +87,7 @@ export default {
     uploadVideoToS3() {
       const filename = this.video.name;
       const fileExtension = filename.slice(((filename.lastIndexOf(".") - 1) >>> 0) + 2);
-      axios.get('http://localhost:8080/api/video/upload-url/' + fileExtension)
+      axios.get('/api/video/upload-url/' + fileExtension)
         .then((res) => {
           let data = res.data;
           this.extURL = data.message;
@@ -123,7 +124,7 @@ export default {
       const form = new FormData();
       form.append('filename', FileName)
       form.append('caption', this.title)
-      axios.post("http://localhost:8080/api/video/submit", form)
+      axios.post("/api/video/submit", form)
         .then((res) => {
           let data = res.data
           if (data.success) {
