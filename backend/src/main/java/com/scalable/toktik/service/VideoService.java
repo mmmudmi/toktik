@@ -56,17 +56,17 @@ public class VideoService {
 
     public List<VideoModel> getLatest(int page, int size, boolean desc) {
         if (desc) {
-            return videoRepository.findAllByProcess(true, PageRequest.of(page, size, Sort.by("created").descending()));
+            return videoRepository.findAllByStatus(1, PageRequest.of(page, size, Sort.by("created").descending()));
         } else {
-            return videoRepository.findAllByProcess(true, PageRequest.of(page, size, Sort.by("created").ascending()));
+            return videoRepository.findAllByStatus(1, PageRequest.of(page, size, Sort.by("created").ascending()));
         }
     }
 
     public List<VideoModel> getByViews(int page, int size, boolean desc) {
         if (desc) {
-            return videoRepository.findAllByProcess(true, PageRequest.of(page, size, Sort.by("views").descending()));
+            return videoRepository.findAllByStatus(1, PageRequest.of(page, size, Sort.by("views").descending()));
         } else {
-            return videoRepository.findAllByProcess(true, PageRequest.of(page, size, Sort.by("views").ascending()));
+            return videoRepository.findAllByStatus(1, PageRequest.of(page, size, Sort.by("views").ascending()));
         }
     }
 }

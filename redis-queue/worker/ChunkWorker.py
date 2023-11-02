@@ -33,7 +33,7 @@ if __name__ == '__main__':
         filename, extension = worker_util.extract_name_ext(file)
         output_file = f"{filename}.m3u8"
         S3Connector.download_s3_file(s3_client, f"{worker_util.VIDEO_INPUT}/{file}", file)
-        subprocess.run(
+        result = subprocess.run(
             [
                 "ffmpeg",
                 "-i",
@@ -51,7 +51,10 @@ if __name__ == '__main__':
                 f"{worker_util.VIDEO_OUTPUT}/{output_file}",
             ]
         )
-        upload_playlist(s3_client, filename)
-        S3Connector.delete_s3_file(s3_client, file)
-        RedisConnector.redis_publish(redis_db, filename)
+        if result.returncode != 0:
+            RedisConnector.redis_error(redis_db, filename)
+        else:
+            upload_playlist(s3_client, filename)
+            S3Connector.delete_s3_file(s3_client, file)
+            RedisConnector.redis_publish(redis_db, filename)
         worker_util.clean_dir(filename)

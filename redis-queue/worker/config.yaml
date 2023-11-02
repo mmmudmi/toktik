@@ -6,6 +6,7 @@ redis:
   chunk_queue: chunk_queue
   convert_queue: convert_queue
   finish_channel: finish_channel
+  error_channel: error_channel
   password: eYVX7EwVmmxKPCDmwMtyKVge8oLd2t81
 
 s3:
