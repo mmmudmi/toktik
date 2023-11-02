@@ -19,8 +19,7 @@ if __name__ == '__main__':
         filename, extension = worker_util.extract_name_ext(file)
         output_file = f"{filename}.mp4"
         S3Connector.download_s3_file(s3_client, f"{worker_util.VIDEO_INPUT}/{file}", file)
-
-        subprocess.run(
+        result = subprocess.run(
             [
                 "ffmpeg",
                 "-i",
@@ -34,10 +33,13 @@ if __name__ == '__main__':
                 f"{worker_util.VIDEO_OUTPUT}/{output_file}",
             ]
         )
-        S3Connector.delete_s3_file(s3_client, file)
-        S3Connector.upload_s3_file(
-            s3_client, f"{worker_util.VIDEO_OUTPUT}/{output_file}", f"{output_file}"
-        )
+        if result.returncode != 0:
+            RedisConnector.redis_error(redis_db, filename)
+        else:
+            S3Connector.delete_s3_file(s3_client, file)
+            S3Connector.upload_s3_file(
+                s3_client, f"{worker_util.VIDEO_OUTPUT}/{output_file}", f"{output_file}"
+            )
+            RedisConnector.redis_queue_push(redis_db, OUTPUT_QUEUE, output_file)
         worker_util.clean_dir(filename)
-        RedisConnector.redis_queue_push(redis_db, OUTPUT_QUEUE, output_file)
 

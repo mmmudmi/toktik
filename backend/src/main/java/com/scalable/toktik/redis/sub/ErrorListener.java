@@ -1,4 +1,4 @@
-package com.scalable.toktik.redis;
+package com.scalable.toktik.redis.sub;
 
 import com.scalable.toktik.model.VideoModel;
 import com.scalable.toktik.service.VideoService;
@@ -7,10 +7,10 @@ import org.springframework.data.redis.connection.MessageListener;
 import org.springframework.stereotype.Service;
 
 @Service
-public class RedisSubscriber implements MessageListener {
+public class ErrorListener implements MessageListener {
     private final VideoService videoService;
 
-    public RedisSubscriber(VideoService videoService) {
+    public ErrorListener(VideoService videoService) {
         this.videoService = videoService;
     }
 
@@ -24,9 +24,7 @@ public class RedisSubscriber implements MessageListener {
         if (video == null) {
             return;
         }
-        video.setVideo(messageContent + ".m3u8");
-        video.setPreview(messageContent + ".jpg");
-        video.setProcess(true);
+        video.setStatus(-1);
         videoService.updateVideo(video);
     }
 }

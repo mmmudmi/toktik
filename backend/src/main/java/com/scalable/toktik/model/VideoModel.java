@@ -4,6 +4,7 @@ import com.scalable.toktik.model.extend.AbstractModel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.Type;
 
 import javax.persistence.*;
 import java.util.Set;
@@ -22,8 +23,9 @@ public class VideoModel extends AbstractModel {
     private String caption;
     @Column(name = "views")
     private Integer views = 0;
-    @Column(name = "is_process")
-    private Boolean process = false;
+    @Column(name = "status", columnDefinition = "TINYINT")
+    @Type(type = "org.hibernate.type.IntegerType")
+    private Integer status = 0;
     // FK Relation
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false, updatable = false)
@@ -35,12 +37,12 @@ public class VideoModel extends AbstractModel {
     private Set<LikeModel> likes;
 
     // M2M relation
-    public VideoModel(String video, String preview, String caption, Integer views, Boolean process, UserModel user) {
+    public VideoModel(String video, String preview, String caption, Integer views, Integer status, UserModel user) {
         this.video = video;
         this.preview = preview;
         this.caption = caption;
         this.views = views;
-        this.process = process;
+        this.status = status;
         this.user = user;
     }
 
