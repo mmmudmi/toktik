@@ -81,13 +81,6 @@
           })
       }, 
     },
-    created(){
-    setInterval(() => {
-      this.reset();
-      // console.log("fetch");
-      // this.fetchData();
-	  }, 90000)
-  },
     mounted() {
       window.addEventListener("scroll",() => {
         let scrollTop=document.documentElement.scrollTop;

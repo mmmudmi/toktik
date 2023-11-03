@@ -28,7 +28,7 @@ import java.util.List;
 
 
 @RestController
-//@PreAuthorize("isAuthenticated()")
+@PreAuthorize("isAuthenticated()")
 @RequestMapping("/video")
 public class VideoController {
 
@@ -59,8 +59,6 @@ public class VideoController {
     }
 
     @GetMapping("/upload-url/{extension}")
-    @PreAuthorize("isAuthenticated()")
-
     public BoolResponse generateUploadUrl(@PathVariable String extension) {
         if (extension.isBlank()) {
             return new BoolResponse(false, "Extension variable is require");
@@ -69,7 +67,6 @@ public class VideoController {
     }
 
     @PostMapping("/submit")
-    @PreAuthorize("isAuthenticated()")
     public BoolResponse uploadComplete(S3CompleteForm s3CompleteForm, @AuthenticationPrincipal UserDetails userDetails) {
         videoService.createVideo(s3CompleteForm.filename(), s3CompleteForm.caption(), userService.findByUsername(userDetails.getUsername()));
         redisService.sendMessageToQueue(previewQueue, s3CompleteForm.filename());
@@ -79,7 +76,6 @@ public class VideoController {
 
 
     @GetMapping("/delete/{filename}")
-    @PreAuthorize("isAuthenticated()")
     public BoolResponse deleteRequest(@PathVariable String filename, @AuthenticationPrincipal UserDetails userDetails) {
         VideoModel video = videoService.findByVideo(filename).orElse(null);
         if (video == null) {
@@ -143,7 +139,6 @@ public class VideoController {
     }
 
     @GetMapping("/detail/{filename}")
-    @PreAuthorize("isAuthenticated()")
     public VideoDetailRecord videoDetail(@PathVariable String filename, @AuthenticationPrincipal UserDetails userDetails) {
         VideoModel video = videoService.findByVideo(filename).orElse(null);
         if (video == null) {
@@ -153,7 +148,6 @@ public class VideoController {
     }
 
     @GetMapping("/like/{filename}")
-    @PreAuthorize("isAuthenticated()")
     public BoolResponse videoLike(@PathVariable String filename, @AuthenticationPrincipal UserDetails userDetails) {
         /** @return new like state */
         VideoModel video = videoService.findByVideo(filename).orElse(null);
@@ -167,7 +161,6 @@ public class VideoController {
     }
 
     @GetMapping("/dislike/{filename}")
-    @PreAuthorize("isAuthenticated()")
     public BoolResponse videoDislike(@PathVariable String filename, @AuthenticationPrincipal UserDetails userDetails) {
         /** @return new like state */
         VideoModel video = videoService.findByVideo(filename).orElse(null);
@@ -182,7 +175,6 @@ public class VideoController {
 
 
     @PostMapping("/comment")
-    @PreAuthorize("isAuthenticated()")
     public ObjectResponse<CommentRecord> submitComment(CommentForm commentForm, @AuthenticationPrincipal UserDetails userDetails) {
         VideoModel video = videoService.findByVideo(commentForm.video()).orElse(null);
         UserModel user = userService.findByUsername(userDetails.getUsername());

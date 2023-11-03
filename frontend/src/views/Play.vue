@@ -171,13 +171,6 @@ export default {
       this.comment = null;
     },
   },
-  created(){
-    setInterval(() => {
-      console.log(this.comments);
-      this.fetchData();
-	  }, 100)
-  
-  },
   computed: {
     sortedComments() {
     return this.comments.slice().sort((a, b) => {

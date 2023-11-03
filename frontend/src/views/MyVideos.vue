@@ -108,14 +108,6 @@ export default {
           })
       }, 
   },
-  created(){
-    setInterval(() => {
-      console.log("fetch myvid");
-      this.reset();
-      // this.page += 1
-      // this.fetchData();
-	  }, 500)
-  },
   mounted() {
     window.addEventListener("scroll",() => {
         let scrollTop=document.documentElement.scrollTop;
