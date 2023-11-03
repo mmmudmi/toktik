@@ -10,6 +10,7 @@
     </parent>
     <groupId>com.scalable</groupId>
     <artifactId>toktik</artifactId>
+    <packaging>jar</packaging>
     <version>0.0.1-SNAPSHOT</version>
     <name>toktik</name>
     <description>toktik</description>
@@ -93,7 +94,6 @@
             <version>1.18.30</version>
             <scope>provided</scope>
         </dependency>
-
     </dependencies>
     <build>
         <plugins>

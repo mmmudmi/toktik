@@ -4,7 +4,7 @@ WORKDIR /app
 
 COPY /pom.xml ./
 COPY ./ ./
-RUN mvn package
+RUN mvn -f pom.xml clean package
 
 FROM openjdk:latest
 COPY target/toktik-0.0.1-SNAPSHOT.jar toktik-0.0.1-SNAPSHOT.jar
