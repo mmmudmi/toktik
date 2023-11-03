@@ -39,7 +39,7 @@ export default {
     navigateToMyVideosPage(){ this.$router.push('myVideos'); },
     logout(){
       console.log('exit')
-      axios.get("http://127.0.0.1:8080/api/auth/logout")
+      axios.get("/api/auth/logout")
         .then((res) => {
           let data = res.data
           if (data.success) {

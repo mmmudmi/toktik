@@ -117,7 +117,7 @@ export default {
         loop: true,
         sources: [
           {
-            src: "http://127.0.0.1:8080/api/video/playlist/"+this.$route.params.video,
+            src: "/api/video/playlist/"+this.$route.params.video,
             type: 'application/x-mpegURL'
           }
         ]
@@ -133,7 +133,7 @@ export default {
   methods:{
     async fetchData(){
       // Long id, String video, String preview, String caption, Integer views, String username,  Integer like_count, Integer comment_count, Boolean is_like, LocalDateTime created
-      axios.get("http://127.0.0.1:8080/api/video/detail/"+this.$route.params.video)
+      axios.get("/api/video/detail/"+this.$route.params.video)
             .then((res) => {
                 this.caption = res.data.caption;
                 this.views = res.data.views;
@@ -148,14 +148,14 @@ export default {
       var likeBtn = document.getElementById('like-btn');
       if (this.is_like) {
         this.is_like = false;
-        axios.get("http://127.0.0.1:8080/api/video/like/"+this.$route.params.video)
+        axios.get("/api/video/like/"+this.$route.params.video)
         .then((res)=>{
           this.is_like = false;
           likeBtn.style.color = 'rgb(229, 229, 229)';
           console.log(res.data.message)
         })
       } else {
-        axios.get("http://127.0.0.1:8080/api/video/like/"+this.$route.params.video)
+        axios.get("/api/video/like/"+this.$route.params.video)
         .then((res)=>{
           this.is_like = true;
           likeBtn.style.color = 'EE3457';
@@ -167,7 +167,7 @@ export default {
       const form = new FormData();
       form.append('comment',this.comment)
       form.append('video',this.video)
-      axios.post("http://127.0.0.1:8080/api/video/comment", form)
+      axios.post("/api/video/comment", form)
       this.comment = null;
     },
   },

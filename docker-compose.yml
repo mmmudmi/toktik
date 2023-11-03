@@ -6,6 +6,8 @@ services:
       context: ./frontend
     networks:
       - ums-user-facing
+    ports:
+      - "7887:80"
 
   backend:
     build: 
