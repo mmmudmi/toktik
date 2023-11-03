@@ -5,8 +5,9 @@ WORKDIR /app
 COPY /pom.xml ./
 COPY ./ ./
 RUN mvn package
+RUN mvn install
 
-FROM openjdk:latest
+FROM openjdk:17.0.2-jdk
 COPY target/toktik-0.0.1-SNAPSHOT.jar toktik-0.0.1-SNAPSHOT.jar
 EXPOSE 8080
 CMD ["java","-jar","/toktik-0.0.1-SNAPSHOT.jar"]
