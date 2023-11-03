@@ -1,4 +1,4 @@
-FROM node:16 as build-stage
+FROM node:16 as builder
 
 WORKDIR /app
 
@@ -10,8 +10,11 @@ RUN yarn add i video.js
 RUN yarn install
 RUN yarn build
 
-FROM nginx:alpine3.18 as production-stage
-RUN mkdir /app
-COPY --from=build-stage /app/dist /app
-EXPOSE 80
-COPY nginx.conf /etc/nginx/nginx.conf
+# FROM nginx:alpine3.18 as production-stage
+# RUN mkdir /app
+# COPY --from=build-stage /app/dist /app
+# EXPOSE 80
+# COPY nginx.conf /etc/nginx/nginx.conf
+
+FROM nginx:1.21-alpine
+COPY --from=builder /app/dist /usr/share/nginx/html/

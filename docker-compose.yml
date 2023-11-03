@@ -2,14 +2,16 @@ version: '3'
 
 services:
   frontend:
+    image: frontend
     build: 
       context: ./frontend
     networks:
       - ums-user-facing
-    ports:
-      - "7887:80"
+    # ports:
+    #   - "7887:80"
 
   backend:
+    image: backend
     build: 
       context: ./backend
       dockerfile: ./Dockerfile
@@ -53,18 +55,18 @@ services:
     networks:
       - ums-back-office
  
-  # proxy:
-  #   image: nginx:alpine
-  #   container_name: nginx-proxy
-  #   ports:
-  #     - "7887:80"
-  #   networks:
-  #     - ums-user-facing
-  #   depends_on:
-  #     - frontend
-  #     - backend
-  #   volumes:
-  #     - ./proxy/default.conf:/etc/nginx/conf.d/default.conf
+  proxy:
+    image: nginx:alpine
+    container_name: nginx-proxy
+    ports:
+      - "7887:80"
+    networks:
+      - ums-user-facing
+    depends_on:
+      - frontend
+      - backend
+    volumes:
+      - ./proxy/default.conf:/etc/nginx/conf.d/default.conf
 
 networks:
   ums-user-facing:
