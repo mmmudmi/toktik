@@ -16,6 +16,7 @@ import com.scalable.toktik.record.video.VideoSimpleRecord;
 import com.scalable.toktik.redis.RedisService;
 import com.scalable.toktik.s3.AwsS3Service;
 import com.scalable.toktik.service.*;
+import com.scalable.toktik.websocket.VideoSocketController;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -36,18 +37,17 @@ public class VideoController {
     private final RedisService redisService;
     private final VideoService videoService;
     private final UserService userService;
-
     private final LikeService likeService;
     private final DislikeService dislikeService;
     private final CommentService commentService;
     private final VideoRecordTool videoRecordTool;
-
+    private final VideoSocketController videoSocketController;
     private final String previewQueue = "preview_queue";
     private final String convertQueue = "convert_queue";
     @Value("${aws.bucketName}")
     private String bucketName;
 
-    public VideoController(AwsS3Service awsS3Service, RedisService redisService, VideoService videoService, UserService userService, LikeService likeService, DislikeService dislikeService, CommentService commentService, VideoRecordTool videoRecordTool) {
+    public VideoController(AwsS3Service awsS3Service, RedisService redisService, VideoService videoService, UserService userService, LikeService likeService, DislikeService dislikeService, CommentService commentService, VideoRecordTool videoRecordTool, VideoSocketController videoSocketController) {
         this.awsS3Service = awsS3Service;
         this.redisService = redisService;
         this.videoService = videoService;
@@ -56,6 +56,7 @@ public class VideoController {
         this.dislikeService = dislikeService;
         this.commentService = commentService;
         this.videoRecordTool = videoRecordTool;
+        this.videoSocketController = videoSocketController;
     }
 
     @GetMapping("/upload-url/{extension}")
@@ -155,8 +156,10 @@ public class VideoController {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         }
         if (likeService.like(video, userService.findByUsername(userDetails.getUsername()))) {
+            videoSocketController.likeCountSocket(video.getVideo(), likeService.likeCount(video));
             return new BoolResponse(true, "You like this video");
         }
+        videoSocketController.likeCountSocket(video.getVideo(), likeService.likeCount(video));
         return new BoolResponse(false, "You unlike this video");
     }
 
@@ -167,9 +170,11 @@ public class VideoController {
         if (video == null) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         }
-        if (dislikeService.dislike(video, userService.findByUsername(userDetails.getUsername()))) {
+        if (likeService.like(video, userService.findByUsername(userDetails.getUsername()))) {
+            videoSocketController.likeCountSocket(video.getVideo(), dislikeService.dislikeCount(video));
             return new BoolResponse(true, "You like this video");
         }
+        videoSocketController.likeCountSocket(video.getVideo(), dislikeService.dislikeCount(video));
         return new BoolResponse(false, "You unlike this video");
     }
 
@@ -185,6 +190,8 @@ public class VideoController {
             return new ObjectResponse<>(false, "Comment can't empty", null);
         }
         CommentModel comment = commentService.createComment(user, video, commentForm.comment());
-        return new ObjectResponse<>(true, "Successfully created new comment", CommentRecordTool.createCommentRecord(comment));
+        CommentRecord record = CommentRecordTool.createCommentRecord(comment);
+        videoSocketController.commentSocket(video.getVideo(), record);
+        return new ObjectResponse<>(true, "Successfully created new comment", record);
     }
 }
