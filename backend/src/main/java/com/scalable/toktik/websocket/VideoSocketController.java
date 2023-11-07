@@ -16,6 +16,10 @@ public class VideoSocketController {
         simpMessagingTemplate.convertAndSend("/sub/comment/" + filename, record);
     }
 
+    public void likeCountSocket(String filename, Integer count) {
+        simpMessagingTemplate.convertAndSend("/sub/likes/" + filename, count);
+    }
+
 
 //    @MessageMapping("/hello")
 //    @SendTo("/topic/greetings")
