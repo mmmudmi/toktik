@@ -171,10 +171,10 @@ public class VideoController {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         }
         if (likeService.like(video, userService.findByUsername(userDetails.getUsername()))) {
-            videoSocketController.likeCountSocket(video.getVideo(), likeService.likeCount(video));
+            videoSocketController.likeCountSocket(video.getVideo(), dislikeService.dislikeCount(video));
             return new BoolResponse(true, "You like this video");
         }
-        videoSocketController.likeCountSocket(video.getVideo(), likeService.likeCount(video));
+        videoSocketController.likeCountSocket(video.getVideo(), dislikeService.dislikeCount(video));
         return new BoolResponse(false, "You unlike this video");
     }
 
