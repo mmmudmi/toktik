@@ -94,6 +94,8 @@ import Navbar from '@/components/Navbar.vue'
 import { isJwtExpired } from 'jwt-check-expiration';
 import VideoPlayer from '@/components/VideoPlayer.vue';
 import PageLoader from '@/components/PageLoader.vue';
+import { Client } from '@stomp/stompjs';
+
 
 
 export default {
@@ -101,6 +103,8 @@ export default {
   components: {Navbar,VideoPlayer,PageLoader},
   data(){
     return{
+      stompClient: null,
+      connected: false,
       player: null,
       video: this.$route.params.video,
       caption: "",
@@ -117,7 +121,7 @@ export default {
         loop: true,
         sources: [
           {
-            src: "/api/video/playlist/"+this.$route.params.video,
+            src: "http://127.0.0.1:8080/api/video/playlist/"+this.$route.params.video,
             type: 'application/x-mpegURL'
           }
         ]
@@ -130,10 +134,13 @@ export default {
     }
     
   },
+  created() {
+    
+  },
   methods:{
     async fetchData(){
       // Long id, String video, String preview, String caption, Integer views, String username,  Integer like_count, Integer comment_count, Boolean is_like, LocalDateTime created
-      axios.get("/api/video/detail/"+this.$route.params.video)
+      axios.get("http://127.0.0.1:8080/api/video/detail/"+this.$route.params.video)
             .then((res) => {
                 this.caption = res.data.caption;
                 this.views = res.data.views;
@@ -148,14 +155,14 @@ export default {
       var likeBtn = document.getElementById('like-btn');
       if (this.is_like) {
         this.is_like = false;
-        axios.get("/api/video/like/"+this.$route.params.video)
+        axios.get("http://127.0.0.1:8080/api/video/like/"+this.$route.params.video)
         .then((res)=>{
           this.is_like = false;
           likeBtn.style.color = 'rgb(229, 229, 229)';
           console.log(res.data.message)
         })
       } else {
-        axios.get("/api/video/like/"+this.$route.params.video)
+        axios.get("http://127.0.0.1:8080/api/video/like/"+this.$route.params.video)
         .then((res)=>{
           this.is_like = true;
           likeBtn.style.color = 'EE3457';
@@ -167,7 +174,7 @@ export default {
       const form = new FormData();
       form.append('comment',this.comment)
       form.append('video',this.video)
-      axios.post("/api/video/comment", form)
+      axios.post("http://127.0.0.1:8080/api/video/comment", form)
       this.comment = null;
     },
   },
@@ -185,11 +192,38 @@ export default {
       const form = new FormData;
       form.append("username", localStorage.getItem("username"))
       this.fetchData();
+      // this.connect();
     } else {
       localStorage.removeItem('token')
       axios.defaults.headers.common['Authorization'] = null;
       this.$router.push({ name: 'welcome'})
     }
+  },
+  mounted() {
+    console.log('Component did mount');
+    // Client is imported from '@stomp/stompjs'
+    this.client = new Client();
+    this.client.configure({
+      brokerURL: 'ws://localhost:8080/api/socket',
+      onConnect: () => {
+        console.log('onConnect');
+
+        this.client.subscribe('/sub/likes/'+this.video, frame => {
+          const count = parseInt(frame.body);
+          console.log("count: ", count);
+          this.like_count = count;
+        });
+        // this.client.subscribe('/topic/greetings', message => {
+        //   alert(message.body);
+        // });
+      },
+      // Helps during debugging, remove in production
+      debug: (str) => {
+        console.log(new Date(), str);
+      }
+    });
+
+    this.client.activate();
   },
   
 }
