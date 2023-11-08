@@ -210,12 +210,15 @@ export default {
 
         this.client.subscribe('/sub/likes/'+this.video, frame => {
           const count = parseInt(frame.body);
-          console.log("count: ", count);
+          console.log("update count: ", count);
           this.like_count = count;
         });
-        // this.client.subscribe('/topic/greetings', message => {
-        //   alert(message.body);
-        // });
+        //CommentRecord(String username, String comment, LocalDateTime created)
+        this.client.subscribe('/sub/comment/'+this.video, frame => {
+          const record = frame.body;
+          console.log("added comment: ", record);
+          this.comments.push(JSON.parse(record));
+        });
       },
       // Helps during debugging, remove in production
       debug: (str) => {
