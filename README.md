@@ -3,23 +3,34 @@ a short-video platform project🚀
 
 ## Components 
 
-TOKTIK
+TOKTIK root
+
   +-- docker-compose.yml
-  |
+
   +-- frontend/
-  |      +-- Dockerfile
-  |      ...
-  +-- backend/       
-  |      +-- Dockerfile
-  |      ...
-  +-- k8s/
-  |      +-- worker/
-  |      |      +-- Dockerfile
-  |      |      ...
-  |      ...
+
+  ----+--- Dockerfile
+
+  ----+--- ...
+
+  +-- backend/  
+     
+  ----+--- Dockerfile
+
+  ----+--- ...
+
   +-- redis-queue/
-  |      +-- Dockerfile
-  |      ...
+
+  ----+--- worker/
+
+  ---------+--- worker/
+
+  --------------+--- Dockerfile
+
+  --------------+--- ...
+
+  +-- k8s/
+
   +-- proxy/
 
 ## How to run 
