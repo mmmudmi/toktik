@@ -9,11 +9,11 @@ import com.scalable.toktik.service.CommentService;
 import com.scalable.toktik.service.DislikeService;
 import com.scalable.toktik.service.LikeService;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 
 import java.util.List;
 
-@Service
+@Component
 public class VideoRecordTool {
 
     private final AwsS3Service awsS3Service;
@@ -28,6 +28,10 @@ public class VideoRecordTool {
         this.commentService = commentService;
         this.likeService = likeService;
         this.dislikeService = dislikeService;
+    }
+
+    public VideoSlimRecord createVideoSlimRecord(VideoModel video) {
+        return new VideoSlimRecord(video.getId(), video.getVideo(), video.getPreview(), video.getCaption(), video.getCreated());
     }
 
     public VideoSimpleRecord createVideoSimpleRecord(VideoModel video, UserModel user) {

@@ -16,6 +16,8 @@ import com.scalable.toktik.record.video.VideoSimpleRecord;
 import com.scalable.toktik.redis.RedisService;
 import com.scalable.toktik.s3.AwsS3Service;
 import com.scalable.toktik.service.*;
+import com.scalable.toktik.websocket.NotificationType;
+import com.scalable.toktik.websocket.UserSocketController;
 import com.scalable.toktik.websocket.VideoSocketController;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -29,7 +31,6 @@ import java.util.List;
 
 
 @RestController
-//@PreAuthorize("isAuthenticated()")
 @RequestMapping("/video")
 public class VideoController {
 
@@ -42,12 +43,13 @@ public class VideoController {
     private final CommentService commentService;
     private final VideoRecordTool videoRecordTool;
     private final VideoSocketController videoSocketController;
+    private final UserSocketController userSocketController;
     private final String previewQueue = "preview_queue";
     private final String convertQueue = "convert_queue";
     @Value("${aws.bucketName}")
     private String bucketName;
 
-    public VideoController(AwsS3Service awsS3Service, RedisService redisService, VideoService videoService, UserService userService, LikeService likeService, DislikeService dislikeService, CommentService commentService, VideoRecordTool videoRecordTool, VideoSocketController videoSocketController) {
+    public VideoController(AwsS3Service awsS3Service, RedisService redisService, VideoService videoService, UserService userService, LikeService likeService, DislikeService dislikeService, CommentService commentService, VideoRecordTool videoRecordTool, VideoSocketController videoSocketController, UserSocketController userSocketController) {
         this.awsS3Service = awsS3Service;
         this.redisService = redisService;
         this.videoService = videoService;
@@ -57,9 +59,11 @@ public class VideoController {
         this.commentService = commentService;
         this.videoRecordTool = videoRecordTool;
         this.videoSocketController = videoSocketController;
+        this.userSocketController = userSocketController;
     }
 
     @GetMapping("/upload-url/{extension}")
+    @PreAuthorize("isAuthenticated()")
     public BoolResponse generateUploadUrl(@PathVariable String extension) {
         if (extension.isBlank()) {
             return new BoolResponse(false, "Extension variable is require");
@@ -68,6 +72,7 @@ public class VideoController {
     }
 
     @PostMapping("/submit")
+    @PreAuthorize("isAuthenticated()")
     public BoolResponse uploadComplete(S3CompleteForm s3CompleteForm, @AuthenticationPrincipal UserDetails userDetails) {
         videoService.createVideo(s3CompleteForm.filename(), s3CompleteForm.caption(), userService.findByUsername(userDetails.getUsername()));
         redisService.sendMessageToQueue(previewQueue, s3CompleteForm.filename());
@@ -77,6 +82,7 @@ public class VideoController {
 
 
     @GetMapping("/delete/{filename}")
+    @PreAuthorize("isAuthenticated()")
     public BoolResponse deleteRequest(@PathVariable String filename, @AuthenticationPrincipal UserDetails userDetails) {
         VideoModel video = videoService.findByVideo(filename).orElse(null);
         if (video == null) {
@@ -90,6 +96,7 @@ public class VideoController {
     }
 
     @GetMapping("/latest")
+    @PreAuthorize("isAuthenticated()")
 //    @Cacheable(value = "video", key = "{#methodName, #page, #size, #order}")
     public List<VideoSimpleRecord> getLatest(@RequestParam(defaultValue = "0", required = false) Integer page,
                                              @RequestParam(defaultValue = "20", required = false) Integer size,
@@ -104,6 +111,7 @@ public class VideoController {
     }
 
     @GetMapping("/views")
+    @PreAuthorize("isAuthenticated()")
 //    @Cacheable(value = "video", key = "{#methodName, #page, #size, #order}")
     public List<VideoSimpleRecord> getMostView(@RequestParam(defaultValue = "0", required = false) Integer page,
                                                @RequestParam(defaultValue = "20", required = false) Integer size,
@@ -140,6 +148,7 @@ public class VideoController {
     }
 
     @GetMapping("/detail/{filename}")
+    @PreAuthorize("isAuthenticated()")
     public VideoDetailRecord videoDetail(@PathVariable String filename, @AuthenticationPrincipal UserDetails userDetails) {
         VideoModel video = videoService.findByVideo(filename).orElse(null);
         if (video == null) {
@@ -149,6 +158,7 @@ public class VideoController {
     }
 
     @GetMapping("/like/{filename}")
+    @PreAuthorize("isAuthenticated()")
     public BoolResponse videoLike(@PathVariable String filename, @AuthenticationPrincipal UserDetails userDetails) {
         /** @return new like state */
         VideoModel video = videoService.findByVideo(filename).orElse(null);
@@ -156,6 +166,8 @@ public class VideoController {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         }
         if (likeService.like(video, userService.findByUsername(userDetails.getUsername()))) {
+            UserModel user = userService.findByUsername(userDetails.getUsername());
+            userSocketController.sendNotification(user, video, NotificationType.LIKE);
             videoSocketController.likeCountSocket(video.getVideo(), likeService.likeCount(video));
             return new BoolResponse(true, "You like this video");
         }
@@ -164,6 +176,7 @@ public class VideoController {
     }
 
     @GetMapping("/dislike/{filename}")
+    @PreAuthorize("isAuthenticated()")
     public BoolResponse videoDislike(@PathVariable String filename, @AuthenticationPrincipal UserDetails userDetails) {
         /** @return new like state */
         VideoModel video = videoService.findByVideo(filename).orElse(null);
@@ -171,6 +184,8 @@ public class VideoController {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         }
         if (likeService.like(video, userService.findByUsername(userDetails.getUsername()))) {
+            UserModel user = userService.findByUsername(userDetails.getUsername());
+            userSocketController.sendNotification(user, video, NotificationType.DISLIKE);
             videoSocketController.likeCountSocket(video.getVideo(), dislikeService.dislikeCount(video));
             return new BoolResponse(true, "You like this video");
         }
@@ -180,6 +195,7 @@ public class VideoController {
 
 
     @PostMapping("/comment")
+    @PreAuthorize("isAuthenticated()")
     public ObjectResponse<CommentRecord> submitComment(CommentForm commentForm, @AuthenticationPrincipal UserDetails userDetails) {
         VideoModel video = videoService.findByVideo(commentForm.video()).orElse(null);
         UserModel user = userService.findByUsername(userDetails.getUsername());
@@ -191,6 +207,7 @@ public class VideoController {
         }
         CommentModel comment = commentService.createComment(user, video, commentForm.comment());
         CommentRecord record = CommentRecordTool.createCommentRecord(comment);
+        userSocketController.sendNotification(user, video, NotificationType.COMMENT);
         videoSocketController.commentSocket(video.getVideo(), record);
         return new ObjectResponse<>(true, "Successfully created new comment", record);
     }

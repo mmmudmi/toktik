@@ -23,4 +23,12 @@ public class NotificationModel extends AbstractModel {
     private VideoModel video;
     @Column(name = "content", columnDefinition = "mediumtext")
     private String content;
+    @Column(name = "is_read")
+    private boolean read = false;
+
+    public NotificationModel(UserModel user, VideoModel video, String content) {
+        this.setUser(user);
+        this.setVideo(video);
+        this.setContent(content);
+    }
 }
