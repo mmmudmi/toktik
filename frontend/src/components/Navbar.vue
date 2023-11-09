@@ -56,6 +56,8 @@
 
 <script>
 import axios from 'axios';
+import { Client } from '@stomp/stompjs';
+
 export default {
   data() {
     return {
@@ -64,6 +66,7 @@ export default {
       is_noti_on: 0,
       unreadCount: 0,
       notifications: [],
+      username: localStorage.getItem('username'),
     };
   },
   created() {
@@ -134,6 +137,36 @@ export default {
           console.log(err)
         })
     },
+  },
+  mounted() {
+    console.log("mount");
+
+    this.client = new Client();
+    this.client.configure({
+      brokerURL: 'ws://localhost:8080/api/socket',
+      onConnect: () => {
+        console.log('Nav onConnect');
+
+        this.client.subscribe('/sub/notification/'+this.username, frame => {
+          const data = JSON.parse(frame.body);
+          console.log("new data: ", data);
+          this.notifications.push(data)
+          this.unreadCount = this.countUnreadNoti();
+        });
+        //CommentRecord(String username, String comment, LocalDateTime created)
+        // this.client.subscribe('/sub/comment/'+this.video, frame => {
+        //   const record = frame.body;
+        //   console.log("added comment: ", record);
+        //   this.comments.push(JSON.parse(record));
+        // });
+      },
+      // Helps during debugging, remove in production
+      debug: (str) => {
+        console.log(new Date(), str);
+      }
+    });
+
+    this.client.activate();
   },
   
 }
