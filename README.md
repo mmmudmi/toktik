@@ -33,14 +33,14 @@ TOKTIK root
 
   +-- proxy/
 
-## How to run 
+## How to run docker
 
 ```bash
 docker compose build
 ```
 
 ```bash
-docker up -d
+docker compose up -d
 ```
 
 
