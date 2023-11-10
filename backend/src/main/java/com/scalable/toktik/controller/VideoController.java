@@ -142,7 +142,7 @@ public class VideoController {
                 throw new ResponseStatusException(HttpStatus.NOT_FOUND);
             }
             videoService.increaseView(video);
-            videoSocketController.viewCountSocket(filename, video.getViews() + 1);
+            videoSocketController.viewCountSocket(filename, video.getViews());
             return content.toString().getBytes();
         }
         throw new ResponseStatusException(HttpStatus.NOT_FOUND);
