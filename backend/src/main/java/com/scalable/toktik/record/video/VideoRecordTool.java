@@ -31,7 +31,7 @@ public class VideoRecordTool {
     }
 
     public VideoSlimRecord createVideoSlimRecord(VideoModel video) {
-        return new VideoSlimRecord(video.getId(), video.getVideo(), video.getPreview(), video.getCaption(), video.getCreated());
+        return new VideoSlimRecord(video.getId(), video.getVideo(), presignTool(video.getPreview()), video.getCaption(), video.getCreated());
     }
 
     public VideoSimpleRecord createVideoSimpleRecord(VideoModel video, UserModel user) {
