@@ -44,8 +44,11 @@ public class VideoController {
     private final VideoRecordTool videoRecordTool;
     private final VideoSocketController videoSocketController;
     private final UserSocketController userSocketController;
-    private final String previewQueue = "preview_queue";
+
+    @Value("${redis.queue.convert}")
     private final String convertQueue = "convert_queue";
+    @Value("${redis.queue.preview}")
+    private String previewQueue;
     @Value("${aws.bucketName}")
     private String bucketName;
 

@@ -27,7 +27,7 @@ public class NotificationService {
     }
 
     public List<NotificationModel> latestNotification(UserModel user, Integer page, Integer size) {
-        return notificationRepository.findAllByUserAndRead(user, false, PageRequest.of(page, size, Sort.by("created").descending()));
+        return notificationRepository.findAllByUser(user, PageRequest.of(page, size, Sort.by("created").descending()));
     }
 
     public int notificationCount(UserModel user) {
