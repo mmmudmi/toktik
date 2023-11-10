@@ -142,6 +142,7 @@ public class VideoController {
                 throw new ResponseStatusException(HttpStatus.NOT_FOUND);
             }
             videoService.increaseView(video);
+            videoSocketController.viewCountSocket(filename, video.getViews() + 1);
             return content.toString().getBytes();
         }
         throw new ResponseStatusException(HttpStatus.NOT_FOUND);
@@ -184,12 +185,10 @@ public class VideoController {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         }
         if (likeService.like(video, userService.findByUsername(userDetails.getUsername()))) {
-            UserModel user = userService.findByUsername(userDetails.getUsername());
-            userSocketController.sendNotification(user, video, NotificationType.DISLIKE);
-            videoSocketController.likeCountSocket(video.getVideo(), dislikeService.dislikeCount(video));
+            videoSocketController.dislikeCountSocket(video.getVideo(), dislikeService.dislikeCount(video));
             return new BoolResponse(true, "You like this video");
         }
-        videoSocketController.likeCountSocket(video.getVideo(), dislikeService.dislikeCount(video));
+        videoSocketController.dislikeCountSocket(video.getVideo(), dislikeService.dislikeCount(video));
         return new BoolResponse(false, "You unlike this video");
     }
 
