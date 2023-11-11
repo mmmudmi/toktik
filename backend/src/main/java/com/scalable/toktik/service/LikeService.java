@@ -26,8 +26,8 @@ public class LikeService {
         return likeRepository.findByVideoAndUser(video, user);
     }
 
-    public LikeModel create(VideoModel video, UserModel user) {
-        return likeRepository.save(new LikeModel(user, video));
+    public void create(VideoModel video, UserModel user) {
+        likeRepository.save(new LikeModel(user, video));
     }
 
     public void delete(LikeModel likeModel) {
