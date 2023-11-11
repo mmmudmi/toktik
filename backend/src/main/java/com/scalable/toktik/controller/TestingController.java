@@ -36,7 +36,7 @@ public class TestingController {
     @GetMapping("/socket")
     public void socket_testing() throws JsonProcessingException {
         String endpoint = "/sub/views/";
-        SocketStandardRecord record = new SocketStandardRecord(endpoint, 1);
+        SocketStandardRecord record = new SocketStandardRecord(endpoint, "1");
         try {
             redisService.publish("socket_channel", JsonConverter.encoding(record));
         } catch (JsonProcessingException ignored) {
