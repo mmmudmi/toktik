@@ -5,15 +5,15 @@ import com.scalable.toktik.record.socket.SocketStandardRecord;
 import com.scalable.toktik.util.JsonConverter;
 import org.springframework.data.redis.connection.Message;
 import org.springframework.data.redis.connection.MessageListener;
-import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
 @Service
 public class SocketListener implements MessageListener {
-    private final StringRedisTemplate stringRedisTemplate;
+    private final SimpMessagingTemplate simpMessagingTemplate;
 
-    public SocketListener(StringRedisTemplate stringRedisTemplate) {
-        this.stringRedisTemplate = stringRedisTemplate;
+    public SocketListener(SimpMessagingTemplate simpMessagingTemplate) {
+        this.simpMessagingTemplate = simpMessagingTemplate;
     }
 
     @Override
@@ -21,7 +21,7 @@ public class SocketListener implements MessageListener {
         String messageContent = new String(message.getBody());
         try {
             SocketStandardRecord record = JsonConverter.decoding(messageContent, SocketStandardRecord.class);
-            stringRedisTemplate.convertAndSend(record.endpoint(), record.content());
+            simpMessagingTemplate.convertAndSend(record.endpoint(), record.content());
         } catch (JsonProcessingException ignored) {
         }
 //        System.out.println(messageContent);
