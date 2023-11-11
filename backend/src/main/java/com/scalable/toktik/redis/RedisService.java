@@ -6,18 +6,22 @@ import org.springframework.stereotype.Service;
 @Service
 public class RedisService {
 
-    private final StringRedisTemplate redisTemplate;
+    private final StringRedisTemplate stringRedisTemplate;
 
-    public RedisService(StringRedisTemplate redisTemplate) {
-        this.redisTemplate = redisTemplate;
+    public RedisService(StringRedisTemplate stringRedisTemplate) {
+        this.stringRedisTemplate = stringRedisTemplate;
     }
 
     public void sendMessageToQueue(String queueName, String message) {
-        redisTemplate.opsForList().leftPush(queueName, message);
+        stringRedisTemplate.opsForList().leftPush(queueName, message);
     }
 
     public String popMessageFromQueue(String queueName) {
-        return redisTemplate.opsForList().rightPop(queueName);
+        return stringRedisTemplate.opsForList().rightPop(queueName);
+    }
+
+    public void publish(String channel, String content) {
+        stringRedisTemplate.convertAndSend(channel, content);
     }
 }
 
