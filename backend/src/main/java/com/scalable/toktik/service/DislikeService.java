@@ -26,8 +26,8 @@ public class DislikeService {
         return dislikeRepository.findByVideoAndUser(video, user);
     }
 
-    public DislikeModel create(VideoModel video, UserModel user) {
-        return dislikeRepository.save(new DislikeModel(user, video));
+    public void create(VideoModel video, UserModel user) {
+        dislikeRepository.save(new DislikeModel(user, video));
     }
 
     public void delete(DislikeModel dislikeModel) {

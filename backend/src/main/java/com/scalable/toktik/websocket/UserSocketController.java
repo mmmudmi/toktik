@@ -5,6 +5,7 @@ import com.scalable.toktik.model.UserModel;
 import com.scalable.toktik.model.VideoModel;
 import com.scalable.toktik.record.notification.NotificationRecordTool;
 import com.scalable.toktik.service.NotificationService;
+import com.scalable.toktik.websocket.type.NotificationType;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
 

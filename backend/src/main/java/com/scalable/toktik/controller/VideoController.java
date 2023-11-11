@@ -16,9 +16,9 @@ import com.scalable.toktik.record.video.VideoSimpleRecord;
 import com.scalable.toktik.redis.RedisService;
 import com.scalable.toktik.s3.AwsS3Service;
 import com.scalable.toktik.service.*;
-import com.scalable.toktik.websocket.NotificationType;
 import com.scalable.toktik.websocket.UserSocketController;
 import com.scalable.toktik.websocket.VideoSocketController;
+import com.scalable.toktik.websocket.type.NotificationType;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -187,7 +187,7 @@ public class VideoController {
         if (video == null) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         }
-        if (likeService.like(video, userService.findByUsername(userDetails.getUsername()))) {
+        if (dislikeService.dislike(video, userService.findByUsername(userDetails.getUsername()))) {
             videoSocketController.dislikeCountSocket(video.getVideo(), dislikeService.dislikeCount(video));
             return new BoolResponse(true, "You like this video");
         }
