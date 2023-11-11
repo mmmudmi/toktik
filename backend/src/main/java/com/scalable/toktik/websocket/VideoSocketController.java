@@ -1,57 +1,38 @@
 package com.scalable.toktik.websocket;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.scalable.toktik.record.comment.CommentRecord;
-import com.scalable.toktik.record.socket.SocketStandardRecord;
-import com.scalable.toktik.redis.RedisService;
-import com.scalable.toktik.util.JsonConverter;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
 
 @Controller
 public class VideoSocketController {
-    private final RedisService redisService;
-    @Value("${redis.channel.socket}")
-    private String socketChannel;
+    private final SimpMessagingTemplate simpMessagingTemplate;
 
-    public VideoSocketController(RedisService redisService) {
-        this.redisService = redisService;
+    public VideoSocketController(SimpMessagingTemplate simpMessagingTemplate) {
+        this.simpMessagingTemplate = simpMessagingTemplate;
     }
 
     public void viewCountSocket(String filename, Integer count) {
-        String endpoint = "/sub/views/" + filename;
-        try {
-            SocketStandardRecord content = new SocketStandardRecord(endpoint, JsonConverter.encoding(count));
-            redisService.publish(socketChannel, JsonConverter.encoding(content));
-        } catch (JsonProcessingException ignored) {
-        }
+        simpMessagingTemplate.convertAndSend("/sub/views/" + filename, count);
     }
 
-
     public void commentSocket(String filename, CommentRecord record) {
-        String endpoint = "/sub/comment/" + filename + filename;
-        try {
-            SocketStandardRecord content = new SocketStandardRecord(endpoint, JsonConverter.encoding(record));
-            redisService.publish(socketChannel, JsonConverter.encoding(content));
-        } catch (JsonProcessingException ignored) {
-        }
+        simpMessagingTemplate.convertAndSend("/sub/comment/" + filename, record);
     }
 
     public void likeCountSocket(String filename, Integer count) {
-        String endpoint = "/sub/likes/" + filename;
-        try {
-            SocketStandardRecord content = new SocketStandardRecord(endpoint, JsonConverter.encoding(count));
-            redisService.publish(socketChannel, JsonConverter.encoding(content));
-        } catch (JsonProcessingException ignored) {
-        }
+        simpMessagingTemplate.convertAndSend("/sub/likes/" + filename, count);
     }
 
     public void dislikeCountSocket(String filename, Integer count) {
-        String endpoint = "/sub/dislikes/" + filename;
-        try {
-            SocketStandardRecord content = new SocketStandardRecord(endpoint, JsonConverter.encoding(count));
-            redisService.publish(socketChannel, JsonConverter.encoding(content));
-        } catch (JsonProcessingException ignored) {
-        }
+        simpMessagingTemplate.convertAndSend("/sub/dislikes/" + filename, count);
     }
+
+
+//    @MessageMapping("/hello")
+//    @SendTo("/topic/greetings")
+//    public Greeting greeting(HelloMessage message) throws Exception {
+//    Thread.sleep(1000); // simulated delay
+//    return new Greeting("Hello, " + HtmlUtils.htmlEscape(message.getName()) + "!");
+//    }
 }
