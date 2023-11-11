@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.scalable.toktik.model.NotificationModel;
 import com.scalable.toktik.model.UserModel;
 import com.scalable.toktik.model.VideoModel;
+import com.scalable.toktik.record.notification.NotificationRecord;
 import com.scalable.toktik.record.notification.NotificationRecordTool;
 import com.scalable.toktik.record.socket.SocketStandardRecord;
 import com.scalable.toktik.redis.RedisService;
@@ -48,8 +49,9 @@ public class UserSocketController {
             }
         }
         String endpoint = "/sub/notification/" + video.getUser().getUsername();
-        SocketStandardRecord content = new SocketStandardRecord(endpoint, notificationRecordTool.createNotification(notification));
+        NotificationRecord record = notificationRecordTool.createNotification(notification);
         try {
+            SocketStandardRecord content = new SocketStandardRecord(endpoint, JsonConverter.encoding(record));
             redisService.publish(socketChannel, JsonConverter.encoding(content));
         } catch (JsonProcessingException ignored) {
         }

@@ -20,8 +20,8 @@ public class VideoSocketController {
 
     public void viewCountSocket(String filename, Integer count) {
         String endpoint = "/sub/views/" + filename;
-        SocketStandardRecord content = new SocketStandardRecord(endpoint, count);
         try {
+            SocketStandardRecord content = new SocketStandardRecord(endpoint, JsonConverter.encoding(count));
             redisService.publish(socketChannel, JsonConverter.encoding(content));
         } catch (JsonProcessingException ignored) {
         }
@@ -30,8 +30,8 @@ public class VideoSocketController {
 
     public void commentSocket(String filename, CommentRecord record) {
         String endpoint = "/sub/comment/" + filename + filename;
-        SocketStandardRecord content = new SocketStandardRecord(endpoint, record);
         try {
+            SocketStandardRecord content = new SocketStandardRecord(endpoint, JsonConverter.encoding(record));
             redisService.publish(socketChannel, JsonConverter.encoding(content));
         } catch (JsonProcessingException ignored) {
         }
@@ -39,8 +39,8 @@ public class VideoSocketController {
 
     public void likeCountSocket(String filename, Integer count) {
         String endpoint = "/sub/likes/" + filename;
-        SocketStandardRecord content = new SocketStandardRecord(endpoint, count);
         try {
+            SocketStandardRecord content = new SocketStandardRecord(endpoint, JsonConverter.encoding(count));
             redisService.publish(socketChannel, JsonConverter.encoding(content));
         } catch (JsonProcessingException ignored) {
         }
@@ -48,8 +48,8 @@ public class VideoSocketController {
 
     public void dislikeCountSocket(String filename, Integer count) {
         String endpoint = "/sub/dislikes/" + filename;
-        SocketStandardRecord content = new SocketStandardRecord(endpoint, count);
         try {
+            SocketStandardRecord content = new SocketStandardRecord(endpoint, JsonConverter.encoding(count));
             redisService.publish(socketChannel, JsonConverter.encoding(content));
         } catch (JsonProcessingException ignored) {
         }
