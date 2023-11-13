@@ -1,6 +1,15 @@
 # TOKTIK
 a short-video platform project🚀
 
+## Frameworks
+#### Frontend:
+Vuetify
+#### Backend:
+Spring Boot
+#### Workers:
+Redis and python
+
+
 ## Components 
 
 TOKTIK root
