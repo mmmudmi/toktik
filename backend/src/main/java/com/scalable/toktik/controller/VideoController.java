@@ -171,7 +171,9 @@ public class VideoController {
         }
         if (likeService.like(video, userService.findByUsername(userDetails.getUsername()))) {
             UserModel user = userService.findByUsername(userDetails.getUsername());
-            userSocketController.sendNotification(user, video, NotificationType.LIKE);
+            if (!userDetails.getUsername().equals(video.getUser().getUsername())) {
+                userSocketController.sendNotification(user, video, NotificationType.LIKE);
+            }
             videoSocketController.likeCountSocket(video.getVideo(), likeService.likeCount(video));
             return new BoolResponse(true, "You like this video");
         }
@@ -209,7 +211,9 @@ public class VideoController {
         }
         CommentModel comment = commentService.createComment(user, video, commentForm.comment());
         CommentRecord record = CommentRecordTool.createCommentRecord(comment);
-        userSocketController.sendNotification(user, video, NotificationType.COMMENT);
+        if (!userDetails.getUsername().equals(video.getUser().getUsername())) {
+            userSocketController.sendNotification(user, video, NotificationType.COMMENT);
+        }
         videoSocketController.commentSocket(video.getVideo(), record);
         return new ObjectResponse<>(true, "Successfully created new comment", record);
     }
