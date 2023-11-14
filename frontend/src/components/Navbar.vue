@@ -11,11 +11,8 @@
           <v-col align="end">
               <v-btn class="icon-button" @click="triggerNoti">
                 <span class="material-icons">notifications</span>
-                <span class="icon-button__badge" v-if="unreadCount > 0">
-                  {{ unreadCount }}
-                </span>
+                <span class="icon-button__badge" v-if="unreadCount > 0"></span>
               </v-btn>
-
             <a href="/myVideos" style="color: black;">
               <v-btn class="reg-btn" style="width: 6.2pc"> My videos </v-btn>
             </a>
@@ -62,7 +59,7 @@ export default {
   data() {
     return {
       noti_page: 0,
-      noti_size: 6,
+      noti_size: 20,
       is_noti_on: 0,
       unreadCount: 0,
       notifications: [],
@@ -87,13 +84,13 @@ export default {
       })
       .then((res) => {
         // NotificationRecord(VideoSlimRecord video, String notification, Boolean is_read, LocalDateTime created)
-        // VideoSlimRecord(Long id, String video, String preview, String caption, LocalDateTime created)
-            if (res.data.length >= 1) {
+        // VideoSlimRecord(Long id, String video, String preview, String caption, LocalDateTime created)    
+        if (res.data.length >= 1) {
               res.data.forEach(item => {
                 this.notifications.push(item)
               })
               this.unreadCount = this.countUnreadNoti();
-              console.log(this.unreadCount)
+              // console.log(this.unreadCount)
             } else {
               this.noti_page -=1;
             }
@@ -103,6 +100,9 @@ export default {
       axios.post("http://127.0.0.1:8080/api/u/notification/read")
       .then((res) => {
         console.log(res.data.message)
+        this.notifications = []
+        this.unreadCount = 0
+        this.getNotification()
       })
     },
     navigateToVideo(Filename){
@@ -112,7 +112,7 @@ export default {
       if(this.is_noti_on == 1){
         this.is_noti_on=0
         document.getElementById('notification_dd').style.display='none';
-        // this.readAllNoti();
+        this.readAllNoti();
       } else{
         this.is_noti_on=1
         document.getElementById('notification_dd').style.display='block';
@@ -139,26 +139,21 @@ export default {
     },
   },
   mounted() {
-    console.log("mount");
+    // console.log("mount");
 
     this.client = new Client();
     this.client.configure({
       brokerURL: 'ws://localhost:8080/api/socket',
       onConnect: () => {
-        console.log('Nav onConnect');
+        // console.log('Nav onConnect');
 
         this.client.subscribe('/sub/notification/'+this.username, frame => {
           const data = JSON.parse(frame.body);
-          console.log("new data: ", data);
-          this.notifications.push(data)
+          // console.log("new data: ", data);
+          this.notifications.unshift(data)
           this.unreadCount = this.countUnreadNoti();
         });
-        //CommentRecord(String username, String comment, LocalDateTime created)
-        // this.client.subscribe('/sub/comment/'+this.video, frame => {
-        //   const record = frame.body;
-        //   console.log("added comment: ", record);
-        //   this.comments.push(JSON.parse(record));
-        // });
+
       },
       // Helps during debugging, remove in production
       debug: (str) => {
@@ -207,9 +202,9 @@ export default {
   position: absolute;
   top: 0px;
   font-size: 9px;
-  right: -11px;
-  width: 20px;
-  height: 20px;
+  right: -4px;
+  width: 10px;
+  height: 10px;
   border-radius: 50%;
   font-weight: 600;
   background: #EE3457;

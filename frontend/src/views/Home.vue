@@ -32,7 +32,6 @@
   import axios from 'axios';
   import { isJwtExpired } from 'jwt-check-expiration';
   import PageLoader from '@/components/PageLoader.vue';
-  
 
   export default {
     name: "Home",
@@ -45,6 +44,8 @@
         page:-1,
         size:8,
         is_loaded:false,
+        id: 0,
+        client: null,
       }
     },
     methods:{
@@ -54,7 +55,7 @@
       reset(){
       let temp = [];
       this.size =  this.list.length+1;
-      axios.get("/api/video/views",{
+      axios.get("http://127.0.0.1:8080/api/video/views",{
         params: {page: 0, size: this.size},
       })
           .then((res) => {
@@ -68,12 +69,15 @@
     },
       fetchData(){
         this.page += 1;
-        axios.get("/api/video/views",{
+        axios.get("http://127.0.0.1:8080/api/video/views",{
           params: {page: this.page,size: this.size},
         })
           .then((res) => {
             if (res.data.length >= 1) {
-              res.data.forEach(item => this.list.push(item))
+              res.data.forEach(item => { 
+                this.list.push(item)
+              })
+              console.log(res.data)
             } else {
               this.page -=1;
             }
@@ -90,8 +94,10 @@
           this.fetchData();
         }
       })
+
     },
     beforeMount() {
+      
       let jwtToken = localStorage.getItem('token')
       if (jwtToken && !isJwtExpired(jwtToken)) {
         axios.defaults.headers.common['Authorization'] = `Bearer ${localStorage.getItem('token')}`;
@@ -107,6 +113,7 @@
       // VideoSimpleRecord(String video, String preview, String caption, Integer views, String username) 
       
     },
+
   }
 </script>
 
