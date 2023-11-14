@@ -28,7 +28,7 @@ export default {
   beforeMount() {
     localStorage.removeItem('token')
     localStorage.removeItem('username')
-    axios.get("/api/auth/logout")
+    axios.get("http://127.0.0.1:8080/api/auth/logout")
     axios.defaults.headers.common['Authorization'] = null;
   }
 }

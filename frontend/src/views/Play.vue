@@ -68,6 +68,12 @@
             <p style="color: rgb(0, 0, 0);margin-left: 8px; font-size: 15px;font-family: Roboto;">
               {{ this.like_count }} {{ this.like_count <= 1 ? 'like' : 'likes' }}
             </p>
+            <v-row justify="end" style="padding: 0 20px 0 40px; ">
+              <i class="fa fa-play" style="color: rgb(0, 0, 0); margin-right: 8px;position: relative; top: 3px;"></i>
+              <p class="txt-card" style="font-size: 15px;">
+                 {{ this.views }} {{ this.views <= 1 ? 'view' : 'views' }}
+              </p>            
+            </v-row>
             <!-- <span class="left"></span> 
             <span class="right"></span>  -->
           </div>
@@ -104,6 +110,7 @@ export default {
   data(){
     return{
       stompClient: null,
+      client: null,
       connected: false,
       player: null,
       video: this.$route.params.video,
@@ -132,11 +139,8 @@ export default {
     player () {
       return this.$refs.player.player
     }
-    
   },
-  created() {
-    
-  },
+
   methods:{
     async fetchData(){
       // Long id, String video, String preview, String caption, Integer views, String username,  Integer like_count, Integer comment_count, Boolean is_like, LocalDateTime created
@@ -180,10 +184,10 @@ export default {
   },
   computed: {
     sortedComments() {
-    return this.comments.slice().sort((a, b) => {
-      return new Date(a.created) - new Date(b.created);
-    });
-  },
+      return this.comments.slice().sort((a, b) => {
+        return new Date(a.created) - new Date(b.created);
+      });
+    },
   },
   beforeMount() {
     let jwtToken = localStorage.getItem('token')
@@ -206,11 +210,11 @@ export default {
     this.client.configure({
       brokerURL: 'ws://localhost:8080/api/socket',
       onConnect: () => {
-        console.log('onConnect');
+        console.log('Play onConnect');
 
         this.client.subscribe('/sub/likes/'+this.video, frame => {
           const count = parseInt(frame.body);
-          console.log("update count: ", count);
+          console.log("update like count: ", count);
           this.like_count = count;
         });
         //CommentRecord(String username, String comment, LocalDateTime created)
@@ -218,6 +222,12 @@ export default {
           const record = frame.body;
           console.log("added comment: ", record);
           this.comments.push(JSON.parse(record));
+        });
+        this.client.subscribe('/sub/views/'+this.video, frame => {
+          const count = parseInt(frame.body);
+          console.log("old view count: ", this.views);
+          console.log("update view count: ", count);
+          this.views = count;
         });
       },
       // Helps during debugging, remove in production
