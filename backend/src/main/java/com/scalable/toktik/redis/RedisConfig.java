@@ -22,19 +22,6 @@ public class RedisConfig {
     @Value("${redis.channel.socket}")
     private String socketChannel;
 
-//    @Bean
-//    public RedisTemplate<Object, Object> redisTemplate(RedisConnectionFactory connectionFactory) {
-//
-//        RedisTemplate<Object, Object> template = new RedisTemplate<>();
-//        template.setConnectionFactory(connectionFactory);
-//        template.setKeySerializer(new StringRedisSerializer());
-//        template.setHashKeySerializer(new StringRedisSerializer());
-//        template.setHashKeySerializer(new GenericJackson2JsonRedisSerializer());
-//        template.setValueSerializer(new GenericJackson2JsonRedisSerializer());
-//        // Add some specific configuration such as key serializers, etc.
-//        return template;
-//    }
-
     @Bean
     public RedisMessageListenerContainer redisMessageListenerContainer(
             RedisConnectionFactory connectionFactory,

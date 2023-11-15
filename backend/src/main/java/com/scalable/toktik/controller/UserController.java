@@ -41,6 +41,9 @@ public class UserController {
                                                    @RequestParam(defaultValue = "20", required = false) Integer size,
                                                    @RequestParam(defaultValue = "desc", required = false) String order,
                                                    @AuthenticationPrincipal UserDetails userDetails) {
+        if (page < 0) {
+            page = 0;
+        }
         UserModel user = userService.findByUsername(userDetails.getUsername());
         boolean isDesc = order.startsWith("desc");
         List<VideoModel> videos = videoService.findAllByUser(user, page, size, isDesc);
@@ -51,6 +54,9 @@ public class UserController {
     public List<NotificationRecord> userNotification(@RequestParam(defaultValue = "0", required = false) Integer page,
                                                      @RequestParam(defaultValue = "10", required = false) Integer size,
                                                      @AuthenticationPrincipal UserDetails userDetails) {
+        if (page < 0) {
+            page = 0;
+        }
         UserModel user = userService.findByUsername(userDetails.getUsername());
         return notificationRecordTool.createNotificationList(notificationService.latestNotification(user, page, size));
     }
