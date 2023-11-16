@@ -55,7 +55,7 @@
       reset(){
       let temp = [];
       this.size =  this.list.length+1;
-      axios.get("http://127.0.0.1:8080/api/video/views",{
+      axios.get("/api/video/views",{
         params: {page: 0, size: this.size},
       })
           .then((res) => {
@@ -69,7 +69,7 @@
     },
       fetchData(){
         this.page += 1;
-        axios.get("http://127.0.0.1:8080/api/video/views",{
+        axios.get("/api/video/views",{
           params: {page: this.page,size: this.size},
         })
           .then((res) => {

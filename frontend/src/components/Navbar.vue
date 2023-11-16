@@ -79,7 +79,7 @@ export default {
       }, 0);
     },
     getNotification(){
-      axios.get("http://127.0.0.1:8080/api/u/notification",{
+      axios.get("/api/u/notification",{
         params: {page: this.noti_page, size: this.noti_size},
       })
       .then((res) => {
@@ -97,7 +97,7 @@ export default {
           })
     },
     readAllNoti(){
-      axios.post("http://127.0.0.1:8080/api/u/notification/read")
+      axios.post("/api/u/notification/read")
       .then((res) => {
         console.log(res.data.message)
         this.notifications = []
@@ -123,7 +123,7 @@ export default {
     navigateToMyVideosPage(){ this.$router.push('myVideos'); },
     logout(){
       console.log('exit')
-      axios.get("http://127.0.0.1:8080/api/auth/logout")
+      axios.get("/api/auth/logout")
         .then((res) => {
           let data = res.data
           if (data.success) {
@@ -143,7 +143,7 @@ export default {
 
     this.client = new Client();
     this.client.configure({
-      brokerURL: 'ws://localhost:8080/api/socket',
+      brokerURL: 'ws://localhost:7887/api/socket',
       onConnect: () => {
         // console.log('Nav onConnect');
 
