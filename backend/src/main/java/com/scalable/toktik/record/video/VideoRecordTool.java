@@ -9,6 +9,7 @@ import com.scalable.toktik.service.CommentService;
 import com.scalable.toktik.service.DislikeService;
 import com.scalable.toktik.service.LikeService;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -34,22 +35,17 @@ public class VideoRecordTool {
         return new VideoSlimRecord(video.getId(), video.getVideo(), presignTool(video.getPreview()), video.getCaption(), video.getCreated());
     }
 
-    public VideoSimpleRecord createVideoSimpleRecord(VideoModel video, UserModel user) {
+    @Cacheable(value = "VideoInfo", key = "{#video.id}")
+    public VideoSimpleRecord createVideoSimpleRecord(VideoModel video) {
         Integer likeCount = likeService.likeCount(video);
         Integer dislikeCount = dislikeService.dislikeCount(video);
         Integer commentCount = commentService.commentCount(video);
-        boolean isLike;
-        if (user != null) {
-            isLike = likeService.isLike(video, user);
-        } else {
-            isLike = false;
-        }
         return new VideoSimpleRecord(video.getId(), video.getVideo(), presignTool(video.getPreview()), video.getCaption(),
-                video.getViews(), video.getUser().getUsername(), likeCount, dislikeCount, commentCount, isLike, video.getCreated());
+                video.getViews(), video.getUser().getUsername(), likeCount, dislikeCount, commentCount, video.getCreated());
     }
 
-    public List<VideoSimpleRecord> createVideoSimepleRecordList(List<VideoModel> videos, UserModel user) {
-        return videos.stream().map(video -> this.createVideoSimpleRecord(video, user)).toList();
+    public List<VideoSimpleRecord> createVideoSimepleRecordList(List<VideoModel> videos) {
+        return videos.stream().map(this::createVideoSimpleRecord).toList();
     }
 
     public VideoUserSimpleRecord createVideoUserSimpleRecord(VideoModel video) {

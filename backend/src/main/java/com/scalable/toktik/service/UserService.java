@@ -5,6 +5,8 @@ import com.scalable.toktik.model.UserModel;
 import com.scalable.toktik.repsitory.UserRepository;
 import com.scalable.toktik.util.Slugifier;
 import net.bytebuddy.utility.RandomString;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -35,10 +37,12 @@ public class UserService {
         repository.save(new UserModel(username, slug, email, passwordEncoder.encode(password), isStaff));
     }
 
-    public void delete(UserModel entity) {
-        repository.delete(entity);
+    @CacheEvict(value = "UserInfo", key = "{#user.username}")
+    public void delete(UserModel user) {
+        repository.delete(user);
     }
 
+    @CacheEvict(value = "UserInfo", key = "{#username}")
     public void update(UserModel model, String username, String email) {
         Slugify slugify = Slugifier.getInstance();
         String slug = slugify.slugify(username);
@@ -67,6 +71,7 @@ public class UserService {
         repository.save(user);
     }
 
+    @Cacheable("UserInfo")
     public UserModel findByUsername(String username) {
         return repository.findByUsername(username);
     }
@@ -81,9 +86,5 @@ public class UserService {
 
     public UserModel findBySlug(String slug) {
         return repository.findBySlug(slug);
-    }
-
-    public Iterable<UserModel> getAll() {
-        return repository.findAll();
     }
 }

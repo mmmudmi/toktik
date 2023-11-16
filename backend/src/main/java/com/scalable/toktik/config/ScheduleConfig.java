@@ -3,10 +3,9 @@ package com.scalable.toktik.config;
 
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.stereotype.Component;
 
 //@EnableScheduling
-@Component
+//@Component
 public class ScheduleConfig {
     @CacheEvict(cacheNames = {"video", "comment"})
     @Scheduled(fixedRateString = "${caching.spring.expireTime}")

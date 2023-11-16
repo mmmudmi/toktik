@@ -20,6 +20,7 @@ import com.scalable.toktik.websocket.UserSocketController;
 import com.scalable.toktik.websocket.VideoSocketController;
 import com.scalable.toktik.websocket.type.NotificationType;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -103,31 +104,21 @@ public class VideoController {
 //    @Cacheable(value = "video", key = "{#methodName, #page, #size, #order}")
     public List<VideoSimpleRecord> getLatest(@RequestParam(defaultValue = "0", required = false) Integer page,
                                              @RequestParam(defaultValue = "20", required = false) Integer size,
-                                             @RequestParam(defaultValue = "desc", required = false) String order,
-                                             @AuthenticationPrincipal UserDetails userDetails) {
-        UserModel user = null;
-        if (userDetails != null && userDetails.getUsername() != null) {
-            user = userService.findByUsername(userDetails.getUsername());
-        }
+                                             @RequestParam(defaultValue = "desc", required = false) String order) {
         boolean isDesc = order.startsWith("desc");
-        return videoRecordTool.createVideoSimepleRecordList(videoService.getLatest(page, size, isDesc), user);
+        return videoRecordTool.createVideoSimepleRecordList(videoService.getLatest(page, size, isDesc));
     }
 
     @GetMapping("/views")
     @PreAuthorize("isAuthenticated()")
-//    @Cacheable(value = "video", key = "{#methodName, #page, #size, #order}")
     public List<VideoSimpleRecord> getMostView(@RequestParam(defaultValue = "0", required = false) Integer page,
                                                @RequestParam(defaultValue = "20", required = false) Integer size,
-                                               @RequestParam(defaultValue = "desc", required = false) String order,
-                                               @AuthenticationPrincipal UserDetails userDetails) {
-        UserModel user = null;
-        if (userDetails != null && userDetails.getUsername() != null) {
-            user = userService.findByUsername(userDetails.getUsername());
-        }
+                                               @RequestParam(defaultValue = "desc", required = false) String order) {
         boolean isDesc = order.startsWith("desc");
-        return videoRecordTool.createVideoSimepleRecordList(videoService.getByViews(page, size, isDesc), user);
+        return videoRecordTool.createVideoSimepleRecordList(videoService.getByViews(page, size, isDesc));
     }
 
+    @Cacheable(value = "VideoInfo", key = "{#filename}")
     @GetMapping("/playlist/{filename}")
     public @ResponseBody byte[] requestPresignPlaylist(@PathVariable String filename) {
         if (filename.endsWith("m3u8")) {
