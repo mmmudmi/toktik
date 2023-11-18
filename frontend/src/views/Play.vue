@@ -209,9 +209,8 @@ export default {
     this.client = new Client();
     this.client.configure({
       brokerURL: 'ws://localhost:7887/api/socket',
-      onConnect: () => {
+      onConnect: ({"X-Authorization":"Bearer " + localStorage.getItem('token')},() => {
         console.log('Play onConnect');
-
         this.client.subscribe('/sub/likes/'+this.video, frame => {
           const count = parseInt(frame.body);
           console.log("update like count: ", count);
@@ -229,7 +228,7 @@ export default {
           console.log("update view count: ", count);
           this.views = count;
         });
-      },
+      }),
       // Helps during debugging, remove in production
       debug: (str) => {
         console.log(new Date(), str);

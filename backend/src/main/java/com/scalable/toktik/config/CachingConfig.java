@@ -20,7 +20,7 @@ public class CachingConfig {
     @Bean
     public CacheManager cacheManager() {
         CaffeineCache userInfoCache = buildCache("UserInfo", 5, TimeUnit.MINUTES);
-        CaffeineCache videoInfo = buildCache("VideoInfo", 10, TimeUnit.SECONDS, 1000);
+        CaffeineCache videoInfo = buildCache("VideoInfo", 1, TimeUnit.SECONDS, 1000);
         SimpleCacheManager manager = new SimpleCacheManager();
         manager.setCaches(Arrays.asList(userInfoCache, videoInfo));
         return manager;

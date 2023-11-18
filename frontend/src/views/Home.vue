@@ -85,6 +85,11 @@
           })
       }, 
     },
+    created(){
+      setInterval(() => {
+        this.fetchData();
+      }, 10000)
+    },
     mounted() {
       window.addEventListener("scroll",() => {
         let scrollTop=document.documentElement.scrollTop;

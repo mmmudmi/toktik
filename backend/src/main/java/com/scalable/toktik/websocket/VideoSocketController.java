@@ -31,7 +31,7 @@ public class VideoSocketController {
     }
 
     public void commentSocket(String filename, CommentRecord record) {
-        String endpoint = "/sub/comment/" + filename + filename;
+        String endpoint = "/sub/comment/" + filename;
         try {
             SocketStandardRecord content = new SocketStandardRecord(endpoint, JsonConverter.encoding(record));
             redisService.publish(socketChannel, JsonConverter.encoding(content));
